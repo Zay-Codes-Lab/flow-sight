@@ -104,6 +104,7 @@ function convertTxToScript(txCode, authorizers) {
 
 async function dryRunTx(fcl, txCode, args, authorizers) {
     const checks = getChecks()
+    console.log(checks);
 
     /* format of state =
         {
@@ -125,13 +126,14 @@ async function dryRunTx(fcl, txCode, args, authorizers) {
         const keys = Object.keys(checks)
         for (let j = 0; j < keys.length; j++) {
             const key = keys[j]
-            const check = checks[key]
+            const check = checks[key].check
+            const imports = checks[key].imports
 
             const accountStateScaffold = AccountStateScaffold
 
             // modify the accountStateScaffold to include the check at the /*INSERT_CODE_HERE*/ line
-            const curScript = accountStateScaffold.replace('/*INSERT_CODE_HERE*/', check)
-
+            let curScript = accountStateScaffold.replace('/*INSERT_CODE_HERE*/', check)
+            curScript = curScript.replace('/*INSERT_IMPORTS_HERE*/', imports)
             // execute curScript with fcl and store the result
             const result = await fcl
                 .send([

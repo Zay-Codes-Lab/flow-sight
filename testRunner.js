@@ -20,7 +20,8 @@ async function run() {
         fcl.arg("0x54b9b6c046396b55", types.Address)
     ]
 
-    await dryRunTx(fcl, txCode, args, ["0xcbbe67425da5f083"])
+    // Need a wallet with no broken contract resources(NFTs)
+    await dryRunTx(fcl, txCode, args, ["0xf9f7a4ebaf29be6c"])
 }
 
 run()
