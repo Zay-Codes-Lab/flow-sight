@@ -1,14 +1,17 @@
+import { getChecks } from './src/ChecksFactory.js'
+import AccountStateScaffold from './src/AccountStateScaffold.js'
+import t from '@onflow/types'
 
 /*
     Please excuse the comments and lengthy code, this was
     written using copilot and I have not yet cleaned it up.
 */
-function convertTxToScript(txCode, authorizers, extraCode) {
+function convertTxToScript(txCode, authorizers) {
     // replace the transaction code with the script code
     let scriptCode = txCode.replace('transaction', 'pub fun main').trim()
 
     // after pub fun main and before the brace, add a `: Int` to the scriptCode, but keep what was in the args of the transaction
-    scriptCode = scriptCode.replace(/pub fun main\((.*?)\)\s*{/, 'pub fun main($1): Int {')    
+    scriptCode = scriptCode.replace(/pub fun main\((.*?)\)\s*{/, 'pub fun main($1): AnyStruct {')    
 
     // remove any post statement code
     scriptCode = scriptCode.replace(/post\s*{(.*?)}/, '')
@@ -55,9 +58,6 @@ function convertTxToScript(txCode, authorizers, extraCode) {
     // parse all arguments of the prepare statement into an array of strings using regex
     const prepareArgs = scriptCode.match(/prepare\((.*?)\)\s*{/)[1].split(',')
 
-    // print what prepareArgs is to the console
-    console.log(prepareArgs)
-
     // create an empty string to store the authAccounts
     let authAccounts = ''
 
@@ -91,11 +91,8 @@ function convertTxToScript(txCode, authorizers, extraCode) {
         scriptCode = scriptCode.replace(/}\s*}/, '}').trim()
     }
 
-    // TODO - instead of `return 1`, replace with extraCode and
-    // add a new return statement to the end of the scriptCode
-
     // before the last curly brace, add `return 1` to the scriptCode
-    scriptCode = scriptCode.replace(/}\s*$/, 'return 1\n}')
+    scriptCode = scriptCode.replace(/}\s*$/, '\n\tlet flowSightResult: {String: AnyStruct} = {}\n\t/*INSERT_CODE_HERE*/\n\treturn flowSightResult\n}')
 
     // remove any consecutive blank lines froms scriptCode
     for ( let i = 0; i < 2; i++ ) {
@@ -106,11 +103,62 @@ function convertTxToScript(txCode, authorizers, extraCode) {
 }
 
 async function dryRunTx(fcl, txCode, args, authorizers) {
+    const checks = getChecks()
+
+    /* format of state =
+        {
+            "0x01": {
+                "ftBalancesCheck": {
+                    "FreeformData": "From the snippet script"
+                }
+            },
+            ...
+        }
+    */
+
+    const oldState = {}
+
+    // loop through all authorizers
+    for (let i = 0; i < authorizers.length; i++) {
+        oldState[authorizers[i]] = {}
+        // loop through checks
+        const keys = Object.keys(checks)
+        for (let j = 0; j < keys.length; j++) {
+            const key = keys[j]
+            const check = checks[key]
+
+            const accountStateScaffold = AccountStateScaffold
+
+            // modify the accountStateScaffold to include the check at the /*INSERT_CODE_HERE*/ line
+            const curScript = accountStateScaffold.replace('/*INSERT_CODE_HERE*/', check)
+
+            // execute curScript with fcl and store the result
+            const result = await fcl
+                .send([
+                    fcl.script(curScript),
+                    fcl.args([
+                        fcl.arg(authorizers[i], t.Address)
+                    ]),
+                    fcl.limit(1000),
+                ])
+                .then(fcl.decode)
+            
+            oldState[authorizers[i]][key] = result
+        }
+    }
+
+    console.log('old state is', oldState)
+
     // run convertTxToScript and get the updated script code
-    const scriptCode = convertTxToScript(txCode, authorizers, '')
+    const scriptCode = convertTxToScript(txCode, authorizers)
+
+    //const newState = 
+
+    // compare oldState and newState
+
 
     // print scriptCode
-    console.log(scriptCode)
+    //console.log(scriptCode)
 
     // run scriptCode and store the result
     /*const result = await fcl
@@ -122,10 +170,8 @@ async function dryRunTx(fcl, txCode, args, authorizers) {
         .then(fcl.decode)
         */
 
-    return null
-
 }
 
-module.exports = {
-    dryRunTx: dryRunTx
+export {
+    dryRunTx
 }
