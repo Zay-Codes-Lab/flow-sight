@@ -1,16 +1,16 @@
 {
-  "name": "flow-preview",
-  "type": "module",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@onflow/fcl": "^1.3.2",
-    "@onflow/types": "^1.0.5"
-  }
+    "name": "flow-preview",
+    "type": "module",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "author": "",
+    "license": "ISC",
+    "scripts": {
+        "runner": "node bin/runner.js"
+    },
+    "dependencies": {
+        "@onflow/fcl": "^1.3.2",
+        "@onflow/types": "^1.0.5"
+    }
 }
