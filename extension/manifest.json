@@ -2,14 +2,16 @@
   "manifest_version": 3,
   "name": "FlowSight",
   "version": "1.0",
-  "description": "A simple extension that does something cool",
+  "description": "A simple extension that modifies dapper tx pages to preview the results of flow transactions before they happen",
   "permissions": [
     "activeTab"
   ],
   "content_scripts": [
     {
-      "matches": ["https://accounts.meetdapper.com/*"],
-      "js": ["flowsight.js", "dapper_inject.js"]
+      "matches": ["https://accounts.meetdapper.com/fcl/*"],
+      "js": ["flowsight.js", "dapper_inject.js"],
+      "run_at": "document_end",
+      "all_frames": true
     }
   ]
 }

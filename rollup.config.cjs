@@ -9,7 +9,11 @@ module.exports = [
       file: './extension/flowsight.js',
       format: 'umd',
       name: 'flowSight',
+      globals: {
+        'fs': 'fs'
+      }
     },
+    external: [ 'fs' ],
     plugins: [
       nodeResolve({
         browser: true,
@@ -18,7 +22,7 @@ module.exports = [
       commonjs({
         include: 'node_modules/**'
       }),
-      terser(),
+      //terser(),
     ],
   },
 ];
