@@ -6,7 +6,7 @@
     "main": "index.js",
     "scripts": {
         "build": "node build.js",
-        "bundle": "rollup -c rollup.config.cjs",
+        "bundle": "npm run build && rollup -c rollup.config.cjs",
         "flow-sight": "node bin/flow-sight.js"
     },
     "author": "",

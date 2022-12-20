@@ -1,31 +1,13 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('fs')) :
-    typeof define === 'function' && define.amd ? define(['exports', 'fs'], factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.flowSight = {}, global.fs));
-})(this, (function (exports, fs) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+    typeof define === 'function' && define.amd ? define(['exports'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.flowSight = {}));
+})(this, (function (exports) { 'use strict';
 
-    async function readCadenceScripts(network = "testnet") {
-        try {
-            return await fs.promises.readdir(`./cadence/${network}/scripts`);
-        } catch (err) {
-            console.error("Error occurred while reading directory!", err);
-        }
-    }
+    const CHECKS = {"mainnet":[{"name":"ft-balances-check","cadence":"import FungibleToken from 0xf233dcee88fe0abe\n\npub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check FT Balances\"\n  let balances : [AnyStruct] = []\n  flowSightResult[\"balances\"] = balances\n  acct.forEachStored(fun (path: StoragePath, type: Type): Bool {\n    if type.isSubtype(of: Type<@FungibleToken.Vault>()) {\n      let vaultRef = acct.borrow<&FungibleToken.Vault>(from: path) ?? panic(\"Could not borrow Balance reference to the Vault\")\n      var balancesObj = flowSightResult[\"balances\"] as! [AnyStruct]?\n      balancesObj!.append({\"type\": type.identifier, \"value\": vaultRef.balance})\n      flowSightResult[\"balances\"] = balancesObj\n    }\n    return true\n  })\n  /*END CHECK*/\n\n  return flowSightResult\n}"},{"name":"nft-count-check","cadence":"import NonFungibleToken from 0x1d7e57aa55817448\n\npub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check NFT Counts\"\n  let counts: [AnyStruct] = []\n  flowSightResult[\"counts\"] = counts\n  acct.forEachStored(fun (path: StoragePath, type: Type): Bool {\n    if type.isSubtype(of: Type<@AnyResource{NonFungibleToken.CollectionPublic}>()) {\n      let collectionRef = acct.borrow<&AnyResource{NonFungibleToken.CollectionPublic}>(from: path) ?? panic(\"Could not borrow Collection reference.\")\n      if collectionRef.getIDs().length > 0 {\n        var countsObj = flowSightResult[\"counts\"] as! [AnyStruct]?\n        countsObj!.append({\"type\": type.identifier, \"value\": collectionRef.getIDs().length})\n        flowSightResult[\"counts\"] = countsObj\n      }\n    }\n    return true\n  })\n   /*END CHECK*/\n  return flowSightResult\n}\n"},{"name":"private-path-check","cadence":"pub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check Private Path Capabilities\"\n  let capabilities: [AnyStruct] = []\n  flowSightResult[\"capabilities\"] = capabilities\n  acct.forEachPrivate(fun (path: PrivatePath, type: Type): Bool {\n    var capabilitiesObj = flowSightResult[\"capabilities\"] as! [AnyStruct]?\n    capabilitiesObj!.append({\"type\": type.identifier})\n    flowSightResult[\"capabilities\"] = capabilitiesObj\n    return true\n  })\n\n  /*END CHECK*/\n  return flowSightResult\n}\n"},{"name":"public-path-check","cadence":"pub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check Public Path Capabilities\"\n  let capabilities: [AnyStruct] = []\n  flowSightResult[\"capabilities\"] = capabilities\n  acct.forEachPublic(fun (path: PublicPath, type: Type): Bool {\n    var capabilitiesObj = flowSightResult[\"capabilities\"] as! [AnyStruct]?\n    capabilitiesObj!.append({\"type\": type.identifier})\n    flowSightResult[\"capabilities\"] = capabilitiesObj\n    return true\n  })\n\n  /*END CHECK*/\n  return flowSightResult\n}\n"}],"testnet":[{"name":"ft-balances-check","cadence":"import FungibleToken from 0x9a0766d93b6608b7\n\npub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  flowSightResult[\"name\"] = \"Check FT Balances\"\n  let balances : [AnyStruct] = []\n  flowSightResult[\"balances\"] = balances\n  acct.forEachStored(fun (path: StoragePath, type: Type): Bool {\n    if type.isSubtype(of: Type<@FungibleToken.Vault>()) {\n      let vaultRef = acct.borrow<&FungibleToken.Vault>(from: path) ?? panic(\"Could not borrow Balance reference to the Vault\")\n      var balancesObj = flowSightResult[\"balances\"] as! [AnyStruct]?\n      balancesObj!.append({\"type\": type.identifier, \"value\": vaultRef.balance})\n      flowSightResult[\"balances\"] = balancesObj\n    }\n    return true\n  })\n\n  return flowSightResult\n}"},{"name":"nft-count-check","cadence":"import NonFungibleToken from 0x631e88ae7f1d7c20\n\npub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  flowSightResult[\"name\"] = \"Check NFT Counts\"\n  let counts: [AnyStruct] = []\n  flowSightResult[\"counts\"] = counts\n  acct.forEachStored(fun (path: StoragePath, type: Type): Bool {\n    if type.isSubtype(of: Type<@AnyResource{NonFungibleToken.CollectionPublic}>()) {\n      let collectionRef = acct.borrow<&AnyResource{NonFungibleToken.CollectionPublic}>(from: path) ?? panic(\"Could not borrow Collection reference.\")\n      if collectionRef.getIDs().length > 0 {\n        var countsObj = flowSightResult[\"counts\"] as! [AnyStruct]?\n        countsObj!.append({\"type\": type.identifier, \"value\": collectionRef.getIDs().length})\n        flowSightResult[\"counts\"] = countsObj\n      }\n    }\n    return true\n  })\n\n  return flowSightResult\n}\n"},{"name":"private-path-check","cadence":"pub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  flowSightResult[\"name\"] = \"Check Private Path Capabilities\"\n  let capabilities: [AnyStruct] = []\n  flowSightResult[\"capabilities\"] = capabilities\n  acct.forEachPrivate(fun (path: PrivatePath, type: Type): Bool {\n    var capabilitiesObj = flowSightResult[\"capabilities\"] as! [AnyStruct]?\n    capabilitiesObj!.append({\"type\": type.identifier})\n    flowSightResult[\"capabilities\"] = capabilitiesObj\n    return true\n  })\n\n  return flowSightResult\n}\n"},{"name":"public-path-check","cadence":"pub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  flowSightResult[\"name\"] = \"Check Public Path Capabilities\"\n  let capabilities: [AnyStruct] = []\n  flowSightResult[\"capabilities\"] = capabilities\n  acct.forEachPublic(fun (path: PublicPath, type: Type): Bool {\n    var capabilitiesObj = flowSightResult[\"capabilities\"] as! [AnyStruct]?\n    capabilitiesObj!.append({\"type\": type.identifier})\n    flowSightResult[\"capabilities\"] = capabilitiesObj\n    return true\n  })\n\n  return flowSightResult\n}\n"}]};
 
     async function getChecks(network = "testnet") {
-        const files = await readCadenceScripts(network);
-        const checks = [];
-        for (let file of files) {
-            const code = await fs.promises.readFile(
-                `./cadence/${network}/scripts/${file}`,
-                "utf8"
-            );
-            checks.push({
-                name: file.split(".")[0],
-                cadence: code,
-            });
-        }
-        return checks;
+        return CHECKS[network];
     }
 
     function _typeof$1(obj) {
@@ -17881,34 +17863,63 @@
         return currentState;
     }
 
+    async function getNewState(fcl, authorizers, providedChecks, txScript, args) {
+        if (!providedChecks) {
+            providedChecks = await getChecks(
+                await fcl.config().get("flow.network", DEFAULT_NETWORK)
+            );
+        }
+
+        const currentState = buildCurrentStateJson(authorizers);
+        // loop through all authorizers
+        for (let account of currentState.accounts) {
+            const { address, checks } = account;
+            // loop through checks
+            for (let check of providedChecks) {
+                //console.log(check.cadence)
+                const codeRegex = /\/\*START CHECK\*\/[\s\S]*?\/\*END CHECK\*\//g;
+                const checkCode = check.cadence.match(codeRegex);
+                let curScript = txScript.replace('/*INSERT_CODE_HERE*/', checkCode);
+
+                
+                const importRegex = /^import\s+[^\n]+/gm;
+                const importsInCheck = check.cadence.match(importRegex);
+                const importsInTransaction = curScript.match(importRegex);
+                const uniqueImportsFromCheck = importsInCheck.filter(element => !importsInTransaction.includes(element));
+                for(const uniqueImport of uniqueImportsFromCheck) {
+                    curScript = `${uniqueImport}\n` + curScript;
+                }
+
+                const result = await fcl
+                    .send([
+                        fcl.script(curScript),
+                        fcl.args(args),
+                        fcl.limit(1000),
+                    ])
+                    .then(fcl.decode);
+
+                checks.push(result);
+            }
+        }
+
+        return currentState;
+    }
+
     async function dryRunTx(fcl, txCode, args, authorizers) {
         const checks = await getChecks(
             await fcl.config().get("flow.network", DEFAULT_NETWORK)
         );
 
-        await getCurrentState(fcl, authorizers, checks);
-
-        // run convertTxToScript and get the updated script code
+        const currentState = await getCurrentState(fcl, authorizers, checks);
+        
         const scriptCode = convertTxToScript(txCode, authorizers);
 
-        console.log(scriptCode);
+        const newState = await getNewState(fcl, authorizers, checks, scriptCode, args);
 
-        //const newState =
-
-        // compare oldState and newState
-
-        // print scriptCode
-        //console.log(scriptCode)
-
-        // run scriptCode and store the result
-        /*const result = await fcl
-            .send([
-                fcl.script(scriptCode),
-                fcl.args(args),
-                fcl.limit(1000),
-            ])
-            .then(fcl.decode)
-            */
+        return {
+            currentState,
+            newState
+        }
     }
 
 
