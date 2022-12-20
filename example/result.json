@@ -1,0 +1,18 @@
+{
+    "accounts": [
+        {
+            "address": "0xf9f7a4ebaf29be6c",
+            "checks": [
+                {
+                    "balances": [
+                        {
+                            "type": "A.1654653399040a61.FlowToken.Vault",
+                            "value": "0.00200000"
+                        }
+                    ],
+                    "name": "Check FT Balances"
+                }
+            ]
+        }
+    ]
+}

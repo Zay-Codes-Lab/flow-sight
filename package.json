@@ -5,8 +5,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "bundle": "rollup -c rollup.config.cjs"
+    "bundle": "rollup -c rollup.config.cjs",
+    "runner": "node bin/runner.js",
+    "currentState": "node bin/currentState.js"
   },
   "author": "",
   "license": "ISC",
