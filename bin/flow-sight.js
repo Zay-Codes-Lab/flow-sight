@@ -39,7 +39,8 @@ async function dryRun(cadenceFile, jsonArgs, addresses, options) {
     const args = await mapValuesToCode(txCode, decodedArgs);
 
     // Need a wallet with no broken contract resources(NFTs)
-    await dryRunTx(fcl, txCode, args, addresses);
+    const states = await dryRunTx(fcl, txCode, args, addresses);
+    console.log(JSON.stringify(states, null, 2));
 }
 
 program
