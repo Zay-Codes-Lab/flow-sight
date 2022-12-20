@@ -8,7 +8,8 @@ import t from '@onflow/types'
 */
 function convertTxToScript(txCode, authorizers) {
     // replace the transaction code with the script code
-    let scriptCode = txCode.replace('transaction', 'pub fun main').trim()
+    let scriptCode = `/*INSERT_IMPORTS_HERE*/\n` + txCode
+    scriptCode = scriptCode.replace('transaction', 'pub fun main').trim()
 
     // after pub fun main and before the brace, add a `: Int` to the scriptCode, but keep what was in the args of the transaction
     scriptCode = scriptCode.replace(/pub fun main\((.*?)\)\s*{/, 'pub fun main($1): AnyStruct {')    
@@ -104,7 +105,6 @@ function convertTxToScript(txCode, authorizers) {
 
 async function dryRunTx(fcl, txCode, args, authorizers) {
     const checks = getChecks()
-    console.log(checks);
 
     /* format of state =
         {
@@ -118,6 +118,7 @@ async function dryRunTx(fcl, txCode, args, authorizers) {
     */
 
     const oldState = {}
+    const newState = {}
 
     // loop through all authorizers
     for (let i = 0; i < authorizers.length; i++) {
@@ -149,10 +150,48 @@ async function dryRunTx(fcl, txCode, args, authorizers) {
         }
     }
 
+    for (let i = 0; i < authorizers.length; i++) {
+        newState[authorizers[i]] = {}
+        // loop through checks
+        const keys = Object.keys(checks)
+        for (let j = 0; j < keys.length; j++) {
+            const key = keys[j]
+            const check = checks[key].check
+            const imports = checks[key].imports
+
+            const txScript = convertTxToScript(txCode, authorizers)
+            // modify the accountStateScaffold to include the check at the /*INSERT_CODE_HERE*/ line
+            let curScript = txScript.replace('/*INSERT_CODE_HERE*/', check)
+            
+            // Find all imports that match
+            var regex =  /(?<=\bimport\s)(\w+)/g
+            const intersection = curScript.match(regex).filter(element => imports().match(regex).includes(element));
+            let checkImports = imports();
+            for(const duplicatedImport of intersection) {
+                const duplicateImportRegex = new RegExp(`import ${duplicatedImport} from (.*?)\n`);
+                checkImports = checkImports.replace(duplicateImportRegex, "")
+            }
+            curScript = curScript.replace('/*INSERT_IMPORTS_HERE*/', checkImports)
+            
+            // execute curScript with fcl and store the result
+            const result = await fcl
+                .send([
+                    fcl.script(curScript),
+                    fcl.args(args),
+                    fcl.limit(1000),
+                ])
+                .then(fcl.decode)
+            
+            newState[authorizers[i]][key] = result
+        }
+    }
+
     console.log('old state is', oldState)
+    console.log('new state is', newState)
 
     // run convertTxToScript and get the updated script code
     const scriptCode = convertTxToScript(txCode, authorizers)
+    //console.log(scriptCode)
 
     //const newState = 
 
