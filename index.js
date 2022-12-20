@@ -33,34 +33,63 @@ async function getCurrentState(fcl, authorizers, providedChecks) {
     return currentState;
 }
 
+async function getNewState(fcl, authorizers, providedChecks, txScript, args) {
+    if (!providedChecks) {
+        providedChecks = await getChecks(
+            await fcl.config().get("flow.network", DEFAULT_NETWORK)
+        );
+    }
+
+    const currentState = buildCurrentStateJson(authorizers);
+    // loop through all authorizers
+    for (let account of currentState.accounts) {
+        const { address, checks } = account;
+        // loop through checks
+        for (let check of providedChecks) {
+            //console.log(check.cadence)
+            const codeRegex = /\/\*START CHECK\*\/[\s\S]*?\/\*END CHECK\*\//g;
+            const checkCode = check.cadence.match(codeRegex)
+            let curScript = txScript.replace('/*INSERT_CODE_HERE*/', checkCode)
+
+            
+            const importRegex = /^import\s+[^\n]+/gm
+            const importsInCheck = check.cadence.match(importRegex)
+            const importsInTransaction = curScript.match(importRegex)
+            const uniqueImportsFromCheck = importsInCheck.filter(element => !importsInTransaction.includes(element))
+            for(const uniqueImport of uniqueImportsFromCheck) {
+                curScript = `${uniqueImport}\n` + curScript
+            }
+
+            const result = await fcl
+                .send([
+                    fcl.script(curScript),
+                    fcl.args(args),
+                    fcl.limit(1000),
+                ])
+                .then(fcl.decode);
+
+            checks.push(result);
+        }
+    }
+
+    return currentState;
+}
+
 async function dryRunTx(fcl, txCode, args, authorizers) {
     const checks = await getChecks(
         await fcl.config().get("flow.network", DEFAULT_NETWORK)
     );
 
     const currentState = await getCurrentState(fcl, authorizers, checks);
-
-    // run convertTxToScript and get the updated script code
+    
     const scriptCode = convertTxToScript(txCode, authorizers);
 
-    console.log(scriptCode);
+    const newState = await getNewState(fcl, authorizers, checks, scriptCode, args);
 
-    //const newState =
-
-    // compare oldState and newState
-
-    // print scriptCode
-    //console.log(scriptCode)
-
-    // run scriptCode and store the result
-    /*const result = await fcl
-        .send([
-            fcl.script(scriptCode),
-            fcl.args(args),
-            fcl.limit(1000),
-        ])
-        .then(fcl.decode)
-        */
+    return {
+        currentState,
+        newState
+    }
 }
 
 export { getChecks, dryRunTx, getCurrentState };

@@ -4,6 +4,7 @@ pub fun main(addr: Address): AnyStruct {
   let acct = getAuthAccount(addr)
   let flowSightResult: {String: AnyStruct} = {}
 
+  /*START CHECK*/
   flowSightResult["name"] = "Check FT Balances"
   let balances : [AnyStruct] = []
   flowSightResult["balances"] = balances
@@ -16,6 +17,7 @@ pub fun main(addr: Address): AnyStruct {
     }
     return true
   })
+  /*END CHECK*/
 
   return flowSightResult
 }
