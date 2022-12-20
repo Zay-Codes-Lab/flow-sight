@@ -1,7 +1,5 @@
 import fcl from "@onflow/fcl";
-import { dryRunTx, getChecks, getCurrentState } from "../index.js";
-import types from "@onflow/types";
-import fs from "fs";
+import { getChecks, getCurrentState } from "../index.js";
 
 // setup fcl to point to mainnet
 fcl.config().put("accessNode.api", "https://rest-mainnet.onflow.org");
