@@ -17879,23 +17879,22 @@
                 //console.log(check.cadence)
                 const codeRegex = /\/\*START CHECK\*\/[\s\S]*?\/\*END CHECK\*\//g;
                 const checkCode = check.cadence.match(codeRegex);
-                let curScript = txScript.replace('/*INSERT_CODE_HERE*/', checkCode);
+                let curScript = txScript.replace("/*INSERT_CODE_HERE*/", checkCode);
 
-                
                 const importRegex = /^import\s+[^\n]+/gm;
                 const importsInCheck = check.cadence.match(importRegex);
                 const importsInTransaction = curScript.match(importRegex);
-                const uniqueImportsFromCheck = importsInCheck.filter(element => !importsInTransaction.includes(element));
-                for(const uniqueImport of uniqueImportsFromCheck) {
-                    curScript = `${uniqueImport}\n` + curScript;
+                if (importsInCheck) {
+                    const uniqueImportsFromCheck = importsInCheck.filter(
+                        (element) => !importsInTransaction.includes(element)
+                    );
+                    for (const uniqueImport of uniqueImportsFromCheck) {
+                        curScript = `${uniqueImport}\n` + curScript;
+                    }
                 }
 
                 const result = await fcl
-                    .send([
-                        fcl.script(curScript),
-                        fcl.args(args),
-                        fcl.limit(1000),
-                    ])
+                    .send([fcl.script(curScript), fcl.args(args), fcl.limit(1000)])
                     .then(fcl.decode);
 
                 checks.push(result);
@@ -17911,25 +17910,30 @@
         );
 
         const currentState = await getCurrentState(fcl, authorizers, checks);
-        
+
         const scriptCode = convertTxToScript(txCode, authorizers);
 
-        const newState = await getNewState(fcl, authorizers, checks, scriptCode, args);
+        const newState = await getNewState(
+            fcl,
+            authorizers,
+            checks,
+            scriptCode,
+            args
+        );
 
         return {
             currentState,
-            newState
-        }
+            newState,
+        };
     }
 
-
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
         window.flowSightFCL = fclGlobal;
         window.flowSightTypes = t$1;
         window.flowSightGetChecks = getChecks;
         window.flowSightGetCurrentState = getCurrentState;
         window.flowSightDryRunTx = (fcl, txCode, args, authorizers) => {
-            return dryRunTx(fcl, txCode, args, authorizers)
+            return dryRunTx(fcl, txCode, args, authorizers);
         };
     }
 
