@@ -4,6 +4,7 @@ pub fun main(addr: Address): AnyStruct {
   let acct = getAuthAccount(addr)
   let flowSightResult: {String: AnyStruct} = {}
 
+  /*START CHECK*/
   flowSightResult["name"] = "Check NFT Counts"
   let counts: [AnyStruct] = []
   flowSightResult["counts"] = counts
@@ -18,6 +19,6 @@ pub fun main(addr: Address): AnyStruct {
     }
     return true
   })
-
+   /*END CHECK*/
   return flowSightResult
 }
