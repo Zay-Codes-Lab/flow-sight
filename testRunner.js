@@ -1,6 +1,6 @@
 import fcl from '@onflow/fcl'
 import { dryRunTx } from './index.js'
-import types from '@onflow/types'
+import t from '@onflow/types'
 import fs from 'fs'
 
 
@@ -16,8 +16,8 @@ async function run() {
     // use the onflow/types library to create the arguments
     // for the dryRunTx function
     const args = [
-        fcl.arg("0.00000001", types.UInt64),
-        fcl.arg("0x54b9b6c046396b55", types.Address)
+        fcl.arg("0.00000001", t.UInt64),
+        fcl.arg("0x54b9b6c046396b55", t.Address)
     ]
 
     // Need a wallet with no broken contract resources(NFTs)

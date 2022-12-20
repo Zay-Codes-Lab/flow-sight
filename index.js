@@ -1,6 +1,7 @@
 import { getChecks } from './src/ChecksFactory.js'
 import AccountStateScaffold from './src/AccountStateScaffold.js'
-import t from '@onflow/types'
+import * as t from '@onflow/types'
+import * as fcl from '@onflow/fcl'
 
 /*
     Please excuse the comments and lengthy code, this was
@@ -104,7 +105,6 @@ function convertTxToScript(txCode, authorizers) {
 
 async function dryRunTx(fcl, txCode, args, authorizers) {
     const checks = getChecks()
-    console.log(checks);
 
     /* format of state =
         {
@@ -172,6 +172,15 @@ async function dryRunTx(fcl, txCode, args, authorizers) {
         .then(fcl.decode)
         */
 
+}
+
+
+if (typeof window !== 'undefined') {
+    window.flowSightFCL = fcl
+    window.flowSightTypes = t
+    window.flowSightDryRunTx = (fcl, txCode, args, authorizers) => {
+        return dryRunTx(fcl, txCode, args, authorizers)
+    }
 }
 
 export {

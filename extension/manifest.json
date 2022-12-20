@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "FlowSight",
+  "version": "1.0",
+  "description": "A simple extension that does something cool",
+  "permissions": [
+    "activeTab"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://accounts.meetdapper.com/*"],
+      "js": ["flowsight.js", "dapper_inject.js"]
+    }
+  ]
+}
