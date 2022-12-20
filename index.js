@@ -1,5 +1,6 @@
 import getChecks from "./src/checks/index.js";
-import t from "@onflow/types";
+import * as t from "@onflow/types";
+import * as fclGlobal from '@onflow/fcl'
 import { buildCurrentStateJson } from "./src/schema/index.js";
 import convertTxToScript from "./src/parser/index.js";
 
@@ -89,6 +90,17 @@ async function dryRunTx(fcl, txCode, args, authorizers) {
     return {
         currentState,
         newState
+    }
+}
+
+
+if (typeof window !== 'undefined') {
+    window.flowSightFCL = fclGlobal
+    window.flowSightTypes = t
+    window.flowSightGetChecks = getChecks
+    window.flowSightGetCurrentState = getCurrentState
+    window.flowSightDryRunTx = (fcl, txCode, args, authorizers) => {
+        return dryRunTx(fcl, txCode, args, authorizers)
     }
 }
 
