@@ -1,6 +1,7 @@
-import { getChecks } from "./src/ChecksFactory.js";
-import AccountStateScaffold from "./src/AccountStateScaffold.js";
+import getChecks from "./src/checks/index.js";
 import t from "@onflow/types";
+
+const DEFAULT_NETWORK = "testnet";
 
 /*
     Please excuse the comments and lengthy code, this was
@@ -129,6 +130,12 @@ function convertTxToScript(txCode, authorizers) {
 }
 
 async function getCurrentState(fcl, authorizers, checks) {
+    if (!checks) {
+        checks = await getChecks(
+            await fcl.config().get("flow.network", DEFAULT_NETWORK)
+        );
+    }
+
     /* format of state =
         {
             "0x01": {
@@ -145,30 +152,18 @@ async function getCurrentState(fcl, authorizers, checks) {
     for (let i = 0; i < authorizers.length; i++) {
         oldState[authorizers[i]] = {};
         // loop through checks
-        const keys = Object.keys(checks);
-        for (let j = 0; j < keys.length; j++) {
-            const key = keys[j];
-            const check = checks[key].check;
-            const imports = checks[key].imports;
-
-            const accountStateScaffold = AccountStateScaffold;
-
-            // modify the accountStateScaffold to include the check at the /*INSERT_CODE_HERE*/ line
-            let curScript = accountStateScaffold.replace(
-                "/*INSERT_CODE_HERE*/",
-                check
-            );
-            curScript = curScript.replace("/*INSERT_IMPORTS_HERE*/", imports);
+        for (let j = 0; j < checks.length; j++) {
+            const check = checks[j];
             // execute curScript with fcl and store the result
             const result = await fcl
                 .send([
-                    fcl.script(curScript),
+                    fcl.script(check.cadence),
                     fcl.args([fcl.arg(authorizers[i], t.Address)]),
                     fcl.limit(1000),
                 ])
                 .then(fcl.decode);
 
-            oldState[authorizers[i]][key] = result;
+            oldState[authorizers[i]][check.name] = result;
         }
     }
 
@@ -176,7 +171,9 @@ async function getCurrentState(fcl, authorizers, checks) {
 }
 
 async function dryRunTx(fcl, txCode, args, authorizers) {
-    const checks = getChecks();
+    const checks = await getChecks(
+        await fcl.config().get("flow.network", DEFAULT_NETWORK)
+    );
 
     const oldState = await getCurrentState(fcl, authorizers, checks);
 
@@ -201,4 +198,4 @@ async function dryRunTx(fcl, txCode, args, authorizers) {
         */
 }
 
-export { dryRunTx, getChecks, getCurrentState };
+export { getChecks, dryRunTx, getCurrentState };

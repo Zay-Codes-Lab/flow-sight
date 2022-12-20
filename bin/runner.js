@@ -4,7 +4,9 @@ import types from "@onflow/types";
 import fs from "fs";
 
 // setup fcl to point to mainnet
-fcl.config().put("accessNode.api", "https://rest-mainnet.onflow.org");
+fcl.config()
+    .put("accessNode.api", "https://rest-mainnet.onflow.org")
+    .put("flow.network", "mainnet");
 
 // readfile from process.argv[2]
 const txCode = fs.readFileSync(process.argv[2], "utf8");
