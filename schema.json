@@ -1,0 +1,37 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "TODO: add a URI",
+    "title": "Flow Sight",
+    "type": "object",
+    "properties": {
+        "accounts": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "address": {
+                            "type": "string"
+                        },
+                        "checks": {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": ["name"]
+                                }
+                            ]
+                        }
+                    },
+                    "required": ["address", "checks"]
+                }
+            ]
+        }
+    },
+    "required": ["accounts"]
+}

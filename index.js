@@ -1,5 +1,6 @@
 import getChecks from "./src/checks/index.js";
 import t from "@onflow/types";
+import { buildCurrentStateJson } from "./src/schema/index.js";
 
 const DEFAULT_NETWORK = "testnet";
 
@@ -129,45 +130,32 @@ function convertTxToScript(txCode, authorizers) {
     return scriptCode;
 }
 
-async function getCurrentState(fcl, authorizers, checks) {
-    if (!checks) {
-        checks = await getChecks(
+async function getCurrentState(fcl, authorizers, providedChecks) {
+    if (!providedChecks) {
+        providedChecks = await getChecks(
             await fcl.config().get("flow.network", DEFAULT_NETWORK)
         );
     }
 
-    /* format of state =
-        {
-            "0x01": {
-                "ftBalancesCheck": {
-                    "FreeformData": "From the snippet script"
-                }
-            },
-            ...
-        }
-    */
-    const oldState = {};
-
+    const currentState = buildCurrentStateJson(authorizers);
     // loop through all authorizers
-    for (let i = 0; i < authorizers.length; i++) {
-        oldState[authorizers[i]] = {};
+    for (let account of currentState.accounts) {
+        const { address, checks } = account;
         // loop through checks
-        for (let j = 0; j < checks.length; j++) {
-            const check = checks[j];
-            // execute curScript with fcl and store the result
+        for (let check of providedChecks) {
             const result = await fcl
                 .send([
                     fcl.script(check.cadence),
-                    fcl.args([fcl.arg(authorizers[i], t.Address)]),
+                    fcl.args([fcl.arg(address, t.Address)]),
                     fcl.limit(1000),
                 ])
                 .then(fcl.decode);
 
-            oldState[authorizers[i]][check.name] = result;
+            checks.push(result);
         }
     }
 
-    return oldState;
+    return currentState;
 }
 
 async function dryRunTx(fcl, txCode, args, authorizers) {
@@ -175,7 +163,7 @@ async function dryRunTx(fcl, txCode, args, authorizers) {
         await fcl.config().get("flow.network", DEFAULT_NETWORK)
     );
 
-    const oldState = await getCurrentState(fcl, authorizers, checks);
+    const currentState = await getCurrentState(fcl, authorizers, checks);
 
     // run convertTxToScript and get the updated script code
     const scriptCode = convertTxToScript(txCode, authorizers);
