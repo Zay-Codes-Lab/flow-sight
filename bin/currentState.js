@@ -7,7 +7,7 @@ fcl.config()
     .put("flow.network", "mainnet");
 
 async function run() {
-    const state = await getCurrentState(fcl, ["0xf9f7a4ebaf29be6c"]);
+    const state = await getCurrentState(fcl, process.argv.splice(2));
     console.log(JSON.stringify(state, null, 2));
 }
 
