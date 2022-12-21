@@ -7,14 +7,14 @@ import { generateDiff } from "./src/diff/index.js";
 
 const DEFAULT_NETWORK = "testnet";
 
-async function getCurrentState(fcl, authorizers, providedChecks) {
+async function getCurrentStates(fcl, addresses, providedChecks) {
     if (!providedChecks) {
         providedChecks = await getChecks(
             await fcl.config().get("flow.network", DEFAULT_NETWORK)
         );
     }
 
-    const currentState = buildStateJson(authorizers);
+    const currentState = buildStateJson(addresses);
     // loop through all authorizers
     for (let account of currentState.accounts) {
         const { address, checks } = account;
@@ -36,7 +36,7 @@ async function getCurrentState(fcl, authorizers, providedChecks) {
 
 async function getProposedState(
     fcl,
-    authorizers,
+    address,
     providedChecks,
     txScript,
     args
@@ -47,10 +47,10 @@ async function getProposedState(
         );
     }
 
-    const currentState = buildStateJson(authorizers);
+    const currentState = buildStateJson([address]);
     // loop through all authorizers
     for (let account of currentState.accounts) {
-        const { address, checks } = account;
+        const { checks } = account;
         // loop through checks
         for (let check of providedChecks) {
             const codeRegex = /\/\*START CHECK\*\/[\s\S]*?\/\*END CHECK\*\//g;
@@ -76,7 +76,7 @@ async function getProposedState(
         }
     }
 
-    return currentState;
+    return currentState.accounts;
 }
 
 async function dryRunTx(fcl, txCode, args, authorizers, providedChecks) {
@@ -86,28 +86,37 @@ async function dryRunTx(fcl, txCode, args, authorizers, providedChecks) {
         );
     }
 
-    const currentState = await getCurrentState(
+
+
+    const addresses = [...new Set([...args.filter(arg => arg.xform.label === 'Address').map(arg => fcl.withPrefix(arg.value)), ...authorizers])]
+
+    const currentStates = await getCurrentStates(
         fcl,
-        authorizers,
+        addresses,
         providedChecks
     );
 
-    const scriptCode = convertTxToScript(txCode, authorizers);
+    const proposedStates = {accounts : []};
+    for (const address of addresses) {
 
-    const proposedState = await getProposedState(
-        fcl,
-        authorizers,
-        providedChecks,
-        scriptCode,
-        args
-    );
+        const scriptCode = convertTxToScript(txCode, authorizers, address);
 
-    const diff = generateDiff(currentState, proposedState);
+        const proposedState = await getProposedState(
+            fcl,
+            address,
+            providedChecks,
+            scriptCode,
+            args
+        );
+        proposedStates.accounts.push(...proposedState);
+    }
+
+    const diff = generateDiff(currentStates, proposedStates);
 
     return {
         diff,
-        currentState,
-        proposedState,
+        currentStates,
+        proposedStates,
     };
 }
 
@@ -115,9 +124,9 @@ if (typeof window !== "undefined") {
     window.flowSightFCL = fclGlobal;
     window.flowSightTypes = t;
     window.flowSightGetChecks = getChecks;
-    window.flowSightGetCurrentState = getCurrentState;
+    window.flowSightGetCurrentState = getCurrentStates;
     window.flowSightGetProposedState = getProposedState;
     window.flowSightDryRunTx = dryRunTx;
 }
 
-export { getChecks, dryRunTx, getCurrentState, getProposedState };
+export { getChecks, dryRunTx, getCurrentStates, getProposedState };
