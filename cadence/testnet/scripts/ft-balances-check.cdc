@@ -1,5 +1,4 @@
 import FungibleToken from 0x9a0766d93b6608b7
-import DapperUtilityCoin from 0x82ec283f88a62e65
 
 pub fun main(addr: Address): AnyStruct {
   let flowSightAcct = getAuthAccount(addr)

@@ -1,6 +1,5 @@
 import FlowToken from 0x1654653399040a61
 import FungibleToken from 0xf233dcee88fe0abe
-import DapperUtilityCoin from 0xead892083b3e2c6c
 
 transaction(amount: UFix64, to: Address) {
   var temporaryVault: @FlowToken.Vault
