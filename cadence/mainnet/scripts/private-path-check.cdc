@@ -4,11 +4,11 @@ pub fun main(addr: Address): AnyStruct {
 
   /*START CHECK*/
   flowSightResult["name"] = "Check Private Path Capabilities"
-  let capabilities: [AnyStruct] = []
+  let capabilities: [String] = []
   flowSightResult["capabilities"] = capabilities
   flowSightAcct.forEachPrivate(fun (path: PrivatePath, type: Type): Bool {
-    var capabilitiesObj = flowSightResult["capabilities"] as! [AnyStruct]?
-    capabilitiesObj!.append({"type": type.identifier})
+    var capabilitiesObj = flowSightResult["capabilities"] as! [String]?
+    capabilitiesObj!.append(type.identifier)
     flowSightResult["capabilities"] = capabilitiesObj
     return true
   })

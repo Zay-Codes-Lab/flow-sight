@@ -6,15 +6,15 @@ pub fun main(addr: Address): AnyStruct {
 
   /*START CHECK*/
   flowSightResult["name"] = "Check NFT Counts"
-  let counts: [AnyStruct] = []
-  flowSightResult["counts"] = counts
+  let counts: {String: [UInt64]} = {}
+  flowSightResult["tokens"] = counts
   flowSightAcct.forEachStored(fun (path: StoragePath, type: Type): Bool {
     if type.isSubtype(of: Type<@AnyResource{NonFungibleToken.CollectionPublic}>()) {
       let collectionRef = flowSightAcct.borrow<&AnyResource{NonFungibleToken.CollectionPublic}>(from: path) ?? panic("Could not borrow Collection reference.")
       if collectionRef.getIDs().length > 0 {
-        var countsObj = flowSightResult["counts"] as! [AnyStruct]?
-        countsObj!.append({"type": type.identifier, "value": collectionRef.getIDs().length})
-        flowSightResult["counts"] = countsObj
+        var countsObj = flowSightResult["tokens"] as! {String: [UInt64]}?
+        countsObj!.insert(key: type.identifier, collectionRef.getIDs())
+        flowSightResult["tokens"] = countsObj
       }
     }
     return true
