@@ -6,7 +6,7 @@
     "main": "index.js",
     "scripts": {
         "build": "mkdir -p src/generated && node build.js",
-        "bundle": "npm run build && rollup -c rollup.config.cjs",
+        "bundle": "patch-package && npm run build && rollup -c rollup.config.cjs",
         "postinstall": "patch-package",
         "flow-sight": "npm run build && node bin/flow-sight.js"
     },
