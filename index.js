@@ -99,7 +99,7 @@ async function dryRunTx(fcl, txCode, args, authorizers, providedChecks) {
     const proposedStates = {accounts : []};
     for (const address of addresses) {
 
-        const scriptCode = convertTxToScript(txCode, authorizers, address);
+        const scriptCode = convertTxToScript(txCode, authorizers, address, addresses);
 
         const proposedState = await getProposedState(
             fcl,

@@ -4,7 +4,7 @@ import * as fcl from "@onflow/fcl";
     Please excuse the comments and lengthy code, this was
     written using copilot and I have not yet cleaned it up.
 */
-export default function convertTxToScript(txCode, authorizers, checkingAddress) {
+export default function convertTxToScript(txCode, authorizers, checkingAddress, impactedAddresses) {
     const regex = new RegExp('(?://.*|/\\*[\\s\\S]*?\\*/)', 'g');
     const codeWithoutComments = txCode.replace(regex, '');
 
@@ -16,10 +16,30 @@ export default function convertTxToScript(txCode, authorizers, checkingAddress) 
         scriptCode = scriptCode.replace("pub fun main", "pub fun main()");
     }
 
+    let ducAdjustments = [];
+    // check if there is the string `import DapperUtilityCoin` at the top of txCode
+    if (txCode.includes("import DapperUtilityCoin")) {
+        ducAdjustments = impactedAddresses.map((address, i) => {
+            return `
+                let curAccount${i} = getAuthAccount(${address})
+                let ducVault${i} <- DapperUtilityCoin.createEmptyVault()
+                curAccount${i}.save(<-ducVault${i}, to: /storage/flowSightDapperUtilityCoinVault)
+                curAccount${i}.unlink(/public/dapperUtilityCoinReceiver)
+                curAccount${i}.link<&DapperUtilityCoin.Vault{FungibleToken.Receiver}>(
+                    /public/dapperUtilityCoinReceiver,
+                    target: /storage/flowSightDapperUtilityCoinVault
+                )
+            `
+        })
+    }
+
+    const joinedDUCAdjustments = ducAdjustments.join('\n')
+
+
     // after pub fun main and before the brace, add a `: Int` to the scriptCode, but keep what was in the args of the transaction
     scriptCode = scriptCode.replace(
         /pub fun main\((.*?)\)?\s*{/,
-        "pub fun main($1): AnyStruct {"
+        `pub fun main($1): AnyStruct {`
     );
 
     // remove any post statement code
@@ -131,6 +151,13 @@ export default function convertTxToScript(txCode, authorizers, checkingAddress) 
     for (let i = 0; i < 2; i++) {
         scriptCode = scriptCode.replace(/\n\n/g, "\n");
     }
+
+    // insert the duc adjustments into the scriptCode after "AnyStruct {"
+    scriptCode = scriptCode.replace("): AnyStruct {", `
+        ): AnyStruct {
+            ${joinedDUCAdjustments}
+        `)
+        
 
     return scriptCode;
 }
