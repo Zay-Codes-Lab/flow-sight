@@ -42,7 +42,9 @@ async function dryRun(cadenceFile, jsonArgs, addresses, options) {
     // Need a wallet with no broken contract resources(NFTs)
     const checks = getChecks(options.network, options.checks);
     const states = await dryRunTx(fcl, txCode, args, addresses, checks);
-    console.log(JSON.stringify(states, null, 2));
+    console.log(
+        JSON.stringify(options.diffOnly ? states.diff : states, null, 2)
+    );
 }
 
 program
@@ -71,6 +73,10 @@ program
     .option(
         "-c, --checks <checks...>",
         "Checks to run, if none provided, all checks will be run"
+    )
+    .option(
+        "-d, --diff-only",
+        "Only return the diff between the current state and the proposed state"
     )
     .action((cadenceFile, jsonArgs, addresses, options) =>
         dryRun(cadenceFile, jsonArgs, addresses, options)
