@@ -124,7 +124,7 @@ if (typeof window !== "undefined") {
     window.flowSightFCL = fclGlobal;
     window.flowSightTypes = t;
     window.flowSightGetChecks = getChecks;
-    window.flowSightGetCurrentState = getCurrentStates;
+    window.flowSightGetCurrentStates = getCurrentStates;
     window.flowSightGetProposedState = getProposedState;
     window.flowSightDryRunTx = dryRunTx;
 }
