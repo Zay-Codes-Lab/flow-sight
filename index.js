@@ -3,6 +3,7 @@ import * as t from "@onflow/types";
 import * as fclGlobal from "@onflow/fcl";
 import { buildCurrentStateJson } from "./src/schema/index.js";
 import convertTxToScript from "./src/parser/index.js";
+import { generateDiff } from "./src/diff/index.js";
 
 const DEFAULT_NETWORK = "testnet";
 
@@ -34,7 +35,13 @@ async function getCurrentState(fcl, authorizers, providedChecks) {
     return currentState;
 }
 
-async function getNewState(fcl, authorizers, providedChecks, txScript, args) {
+async function getProposedState(
+    fcl,
+    authorizers,
+    providedChecks,
+    txScript,
+    args
+) {
     if (!providedChecks) {
         providedChecks = await getChecks(
             await fcl.config().get("flow.network", DEFAULT_NETWORK)
@@ -84,7 +91,7 @@ async function dryRunTx(fcl, txCode, args, authorizers) {
 
     const scriptCode = convertTxToScript(txCode, authorizers);
 
-    const newState = await getNewState(
+    const proposedState = await getProposedState(
         fcl,
         authorizers,
         checks,
@@ -92,9 +99,12 @@ async function dryRunTx(fcl, txCode, args, authorizers) {
         args
     );
 
+    const diff = generateDiff(currentState, proposedState);
+
     return {
+        diff,
         currentState,
-        newState,
+        proposedState,
     };
 }
 
@@ -103,9 +113,10 @@ if (typeof window !== "undefined") {
     window.flowSightTypes = t;
     window.flowSightGetChecks = getChecks;
     window.flowSightGetCurrentState = getCurrentState;
+    window.flowSightGetProposedState = getProposedState;
     window.flowSightDryRunTx = (fcl, txCode, args, authorizers) => {
         return dryRunTx(fcl, txCode, args, authorizers);
     };
 }
 
-export { getChecks, dryRunTx, getCurrentState };
+export { getChecks, dryRunTx, getCurrentState, getProposedState };
