@@ -21,9 +21,12 @@
                                     "properties": {
                                         "name": {
                                             "type": "string"
+                                        },
+                                        "key": {
+                                            "type": "string"
                                         }
                                     },
-                                    "required": ["name"]
+                                    "required": ["name", "key"]
                                 }
                             ]
                         }

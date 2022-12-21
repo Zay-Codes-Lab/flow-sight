@@ -1,7 +1,7 @@
 import getChecks from "./src/checks/index.js";
 import * as t from "@onflow/types";
 import * as fclGlobal from "@onflow/fcl";
-import { buildCurrentStateJson } from "./src/schema/index.js";
+import { addCheckToState, buildStateJson } from "./src/schema/index.js";
 import convertTxToScript from "./src/parser/index.js";
 import { generateDiff } from "./src/diff/index.js";
 
@@ -14,7 +14,7 @@ async function getCurrentState(fcl, authorizers, providedChecks) {
         );
     }
 
-    const currentState = buildCurrentStateJson(authorizers);
+    const currentState = buildStateJson(authorizers);
     // loop through all authorizers
     for (let account of currentState.accounts) {
         const { address, checks } = account;
@@ -27,8 +27,7 @@ async function getCurrentState(fcl, authorizers, providedChecks) {
                     fcl.limit(1000),
                 ])
                 .then(fcl.decode);
-
-            checks.push(result);
+            addCheckToState(checks, check, result);
         }
     }
 
@@ -48,7 +47,7 @@ async function getProposedState(
         );
     }
 
-    const currentState = buildCurrentStateJson(authorizers);
+    const currentState = buildStateJson(authorizers);
     // loop through all authorizers
     for (let account of currentState.accounts) {
         const { address, checks } = account;
@@ -74,8 +73,7 @@ async function getProposedState(
             const result = await fcl
                 .send([fcl.script(curScript), fcl.args(args), fcl.limit(1000)])
                 .then(fcl.decode);
-
-            checks.push(result);
+            addCheckToState(checks, check, result);
         }
     }
 

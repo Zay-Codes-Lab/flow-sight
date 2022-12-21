@@ -1,16 +1,59 @@
 {
     "accounts": [
         {
-            "address": "0xf9f7a4ebaf29be6c",
+            "address": "0xf6373adcb6a954de",
             "checks": [
                 {
                     "balances": [
                         {
                             "type": "A.1654653399040a61.FlowToken.Vault",
-                            "value": "0.00200000"
+                            "value": "0.00197500"
+                        },
+                        {
+                            "value": "0.00000000",
+                            "type": "A.3c5959b568896393.FUSD.Vault"
                         }
                     ],
-                    "name": "Check FT Balances"
+                    "name": "Check FT Balances",
+                    "key": "ft-balances-check"
+                },
+                {
+                    "name": "Check NFT Counts",
+                    "counts": [],
+                    "key": "nft-count-check"
+                },
+                {
+                    "capabilities": [
+                        {
+                            "type": "Capability<&AnyResource{A.1d7e57aa55817448.NonFungibleToken.Provider,A.1d7e57aa55817448.NonFungibleToken.CollectionPublic}>"
+                        }
+                    ],
+                    "name": "Check Private Path Capabilities",
+                    "key": "private-path-check"
+                },
+                {
+                    "capabilities": [
+                        {
+                            "type": "Capability<&AnyResource{A.1d7e57aa55817448.NonFungibleToken.CollectionPublic,A.1d7e57aa55817448.NonFungibleToken.Receiver}>"
+                        },
+                        {
+                            "type": "Capability<&A.3c5959b568896393.FUSD.Vault{A.f233dcee88fe0abe.FungibleToken.Receiver}>"
+                        },
+                        {
+                            "type": "Capability<&A.4eb8a10cb9f87357.NFTStorefront.Storefront{A.4eb8a10cb9f87357.NFTStorefront.StorefrontPublic}>"
+                        },
+                        {
+                            "type": "Capability<&A.3c5959b568896393.FUSD.Vault{A.f233dcee88fe0abe.FungibleToken.Balance}>"
+                        },
+                        {
+                            "type": "Capability<&A.1654653399040a61.FlowToken.Vault{A.f233dcee88fe0abe.FungibleToken.Balance}>"
+                        },
+                        {
+                            "type": "Capability<&A.1654653399040a61.FlowToken.Vault{A.f233dcee88fe0abe.FungibleToken.Receiver}>"
+                        }
+                    ],
+                    "name": "Check Public Path Capabilities",
+                    "key": "public-path-check"
                 }
             ]
         }

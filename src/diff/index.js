@@ -23,7 +23,8 @@ function extractCheckFromPath(state, path) {
 function convertDiffToHumanReadable(currentState, diff) {
     return {
         address: extractAddressFromPath(currentState, diff.path),
-        checkName: extractCheckFromPath(currentState, diff.path).name,
+        checkReadable: extractCheckFromPath(currentState, diff.path).name,
+        check: extractCheckFromPath(currentState, diff.path).key,
         propertyChanged: diff.path[4],
         currentStateValue: diff.lhs,
         proposedStateValue: diff.rhs,
