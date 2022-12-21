@@ -18463,7 +18463,6 @@
             const { address, checks } = account;
             // loop through checks
             for (let check of providedChecks) {
-                //console.log(check.cadence)
                 const codeRegex = /\/\*START CHECK\*\/[\s\S]*?\/\*END CHECK\*\//g;
                 const checkCode = check.cadence.match(codeRegex);
                 let curScript = txScript.replace("/*INSERT_CODE_HERE*/", checkCode);
