@@ -2,6 +2,7 @@ const run = async function () {
   const { flowSightFCL, flowSightTypes, flowSightDryRunTx } = window;
   flowSightFCL.config()
     .put("accessNode.api", "https://rest-mainnet.onflow.org")
+    .put("flow.network", "mainnet")
   const userData = JSON.parse(window.localStorage.getItem("ajs_user_traits"))
   const userAddress = userData["https://accounts.meetdapper.com/flow_account_id"]
   Array
@@ -19,7 +20,8 @@ const run = async function () {
       const arguments = codeBlocks[1].innerText
 
       // dry run the tx
-      const dryRunResult = await flowSightDryRunTx(flowSightFCL, sourceCode, [], [userAddress])
+      // fcl, txCode, args, authorizers, providedChecks
+      const dryRunResult = await flowSightDryRunTx(flowSightFCL, sourceCode, [], [userAddress], null)
       console.log(dryRunResult)
 
       Array

@@ -4,10 +4,12 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.flowSight = {}));
 })(this, (function (exports) { 'use strict';
 
-    const CHECKS = {"mainnet":[{"name":"ft-balances-check","cadence":"import FungibleToken from 0xf233dcee88fe0abe\n\npub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check FT Balances\"\n  let balances : [AnyStruct] = []\n  flowSightResult[\"balances\"] = balances\n  acct.forEachStored(fun (path: StoragePath, type: Type): Bool {\n    if type.isSubtype(of: Type<@FungibleToken.Vault>()) {\n      let vaultRef = acct.borrow<&FungibleToken.Vault>(from: path) ?? panic(\"Could not borrow Balance reference to the Vault\")\n      var balancesObj = flowSightResult[\"balances\"] as! [AnyStruct]?\n      balancesObj!.append({\"type\": type.identifier, \"value\": vaultRef.balance})\n      flowSightResult[\"balances\"] = balancesObj\n    }\n    return true\n  })\n  /*END CHECK*/\n\n  return flowSightResult\n}"},{"name":"nft-count-check","cadence":"import NonFungibleToken from 0x1d7e57aa55817448\n\npub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check NFT Counts\"\n  let counts: [AnyStruct] = []\n  flowSightResult[\"counts\"] = counts\n  acct.forEachStored(fun (path: StoragePath, type: Type): Bool {\n    if type.isSubtype(of: Type<@AnyResource{NonFungibleToken.CollectionPublic}>()) {\n      let collectionRef = acct.borrow<&AnyResource{NonFungibleToken.CollectionPublic}>(from: path) ?? panic(\"Could not borrow Collection reference.\")\n      if collectionRef.getIDs().length > 0 {\n        var countsObj = flowSightResult[\"counts\"] as! [AnyStruct]?\n        countsObj!.append({\"type\": type.identifier, \"value\": collectionRef.getIDs().length})\n        flowSightResult[\"counts\"] = countsObj\n      }\n    }\n    return true\n  })\n   /*END CHECK*/\n  return flowSightResult\n}\n"},{"name":"private-path-check","cadence":"pub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check Private Path Capabilities\"\n  let capabilities: [AnyStruct] = []\n  flowSightResult[\"capabilities\"] = capabilities\n  acct.forEachPrivate(fun (path: PrivatePath, type: Type): Bool {\n    var capabilitiesObj = flowSightResult[\"capabilities\"] as! [AnyStruct]?\n    capabilitiesObj!.append({\"type\": type.identifier})\n    flowSightResult[\"capabilities\"] = capabilitiesObj\n    return true\n  })\n\n  /*END CHECK*/\n  return flowSightResult\n}\n"},{"name":"public-path-check","cadence":"pub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check Public Path Capabilities\"\n  let capabilities: [AnyStruct] = []\n  flowSightResult[\"capabilities\"] = capabilities\n  acct.forEachPublic(fun (path: PublicPath, type: Type): Bool {\n    var capabilitiesObj = flowSightResult[\"capabilities\"] as! [AnyStruct]?\n    capabilitiesObj!.append({\"type\": type.identifier})\n    flowSightResult[\"capabilities\"] = capabilitiesObj\n    return true\n  })\n\n  /*END CHECK*/\n  return flowSightResult\n}\n"}],"testnet":[{"name":"ft-balances-check","cadence":"import FungibleToken from 0x9a0766d93b6608b7\n\npub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  flowSightResult[\"name\"] = \"Check FT Balances\"\n  let balances : [AnyStruct] = []\n  flowSightResult[\"balances\"] = balances\n  acct.forEachStored(fun (path: StoragePath, type: Type): Bool {\n    if type.isSubtype(of: Type<@FungibleToken.Vault>()) {\n      let vaultRef = acct.borrow<&FungibleToken.Vault>(from: path) ?? panic(\"Could not borrow Balance reference to the Vault\")\n      var balancesObj = flowSightResult[\"balances\"] as! [AnyStruct]?\n      balancesObj!.append({\"type\": type.identifier, \"value\": vaultRef.balance})\n      flowSightResult[\"balances\"] = balancesObj\n    }\n    return true\n  })\n\n  return flowSightResult\n}"},{"name":"nft-count-check","cadence":"import NonFungibleToken from 0x631e88ae7f1d7c20\n\npub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  flowSightResult[\"name\"] = \"Check NFT Counts\"\n  let counts: [AnyStruct] = []\n  flowSightResult[\"counts\"] = counts\n  acct.forEachStored(fun (path: StoragePath, type: Type): Bool {\n    if type.isSubtype(of: Type<@AnyResource{NonFungibleToken.CollectionPublic}>()) {\n      let collectionRef = acct.borrow<&AnyResource{NonFungibleToken.CollectionPublic}>(from: path) ?? panic(\"Could not borrow Collection reference.\")\n      if collectionRef.getIDs().length > 0 {\n        var countsObj = flowSightResult[\"counts\"] as! [AnyStruct]?\n        countsObj!.append({\"type\": type.identifier, \"value\": collectionRef.getIDs().length})\n        flowSightResult[\"counts\"] = countsObj\n      }\n    }\n    return true\n  })\n\n  return flowSightResult\n}\n"},{"name":"private-path-check","cadence":"pub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  flowSightResult[\"name\"] = \"Check Private Path Capabilities\"\n  let capabilities: [AnyStruct] = []\n  flowSightResult[\"capabilities\"] = capabilities\n  acct.forEachPrivate(fun (path: PrivatePath, type: Type): Bool {\n    var capabilitiesObj = flowSightResult[\"capabilities\"] as! [AnyStruct]?\n    capabilitiesObj!.append({\"type\": type.identifier})\n    flowSightResult[\"capabilities\"] = capabilitiesObj\n    return true\n  })\n\n  return flowSightResult\n}\n"},{"name":"public-path-check","cadence":"pub fun main(addr: Address): AnyStruct {\n  let acct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  flowSightResult[\"name\"] = \"Check Public Path Capabilities\"\n  let capabilities: [AnyStruct] = []\n  flowSightResult[\"capabilities\"] = capabilities\n  acct.forEachPublic(fun (path: PublicPath, type: Type): Bool {\n    var capabilitiesObj = flowSightResult[\"capabilities\"] as! [AnyStruct]?\n    capabilitiesObj!.append({\"type\": type.identifier})\n    flowSightResult[\"capabilities\"] = capabilitiesObj\n    return true\n  })\n\n  return flowSightResult\n}\n"}]};
+    const CHECKS = {"mainnet":[{"name":"ft-balances-check","cadence":"import FungibleToken from 0xf233dcee88fe0abe\n\npub fun main(addr: Address): AnyStruct {\n  let flowSightAcct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check FT Balances\"\n  let balances : [AnyStruct] = []\n  flowSightResult[\"balances\"] = balances\n  flowSightAcct.forEachStored(fun (path: StoragePath, type: Type): Bool {\n    if type.isSubtype(of: Type<@FungibleToken.Vault>()) {\n      let vaultRef = flowSightAcct.borrow<&FungibleToken.Vault>(from: path) ?? panic(\"Could not borrow Balance reference to the Vault\")\n      var balancesObj = flowSightResult[\"balances\"] as! [AnyStruct]?\n      balancesObj!.append({\"type\": type.identifier, \"value\": vaultRef.balance})\n      flowSightResult[\"balances\"] = balancesObj\n    }\n    return true\n  })\n  /*END CHECK*/\n\n  return flowSightResult\n}"},{"name":"nft-count-check","cadence":"import NonFungibleToken from 0x1d7e57aa55817448\n\npub fun main(addr: Address): AnyStruct {\n  let flowSightAcct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check NFT Counts\"\n  let counts: [AnyStruct] = []\n  flowSightResult[\"counts\"] = counts\n  flowSightAcct.forEachStored(fun (path: StoragePath, type: Type): Bool {\n    if type.isSubtype(of: Type<@AnyResource{NonFungibleToken.CollectionPublic}>()) {\n      let collectionRef = flowSightAcct.borrow<&AnyResource{NonFungibleToken.CollectionPublic}>(from: path) ?? panic(\"Could not borrow Collection reference.\")\n      if collectionRef.getIDs().length > 0 {\n        var countsObj = flowSightResult[\"counts\"] as! [AnyStruct]?\n        countsObj!.append({\"type\": type.identifier, \"value\": collectionRef.getIDs().length})\n        flowSightResult[\"counts\"] = countsObj\n      }\n    }\n    return true\n  })\n   /*END CHECK*/\n  return flowSightResult\n}\n"},{"name":"private-path-check","cadence":"pub fun main(addr: Address): AnyStruct {\n  let flowSightAcct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check Private Path Capabilities\"\n  let capabilities: [AnyStruct] = []\n  flowSightResult[\"capabilities\"] = capabilities\n  flowSightAcct.forEachPrivate(fun (path: PrivatePath, type: Type): Bool {\n    var capabilitiesObj = flowSightResult[\"capabilities\"] as! [AnyStruct]?\n    capabilitiesObj!.append({\"type\": type.identifier})\n    flowSightResult[\"capabilities\"] = capabilitiesObj\n    return true\n  })\n\n  /*END CHECK*/\n  return flowSightResult\n}\n"},{"name":"public-path-check","cadence":"pub fun main(addr: Address): AnyStruct {\n  let flowSightAcct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check Public Path Capabilities\"\n  let capabilities: [AnyStruct] = []\n  flowSightResult[\"capabilities\"] = capabilities\n  flowSightAcct.forEachPublic(fun (path: PublicPath, type: Type): Bool {\n    var capabilitiesObj = flowSightResult[\"capabilities\"] as! [AnyStruct]?\n    capabilitiesObj!.append({\"type\": type.identifier})\n    flowSightResult[\"capabilities\"] = capabilitiesObj\n    return true\n  })\n\n  /*END CHECK*/\n  return flowSightResult\n}\n"}],"testnet":[{"name":"ft-balances-check","cadence":"import FungibleToken from 0x9a0766d93b6608b7\n\npub fun main(addr: Address): AnyStruct {\n  let flowSightAcct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check FT Balances\"\n  let balances : [AnyStruct] = []\n  flowSightResult[\"balances\"] = balances\n  flowSightAcct.forEachStored(fun (path: StoragePath, type: Type): Bool {\n    if type.isSubtype(of: Type<@FungibleToken.Vault>()) {\n      let vaultRef = flowSightAcct.borrow<&FungibleToken.Vault>(from: path) ?? panic(\"Could not borrow Balance reference to the Vault\")\n      var balancesObj = flowSightResult[\"balances\"] as! [AnyStruct]?\n      balancesObj!.append({\"type\": type.identifier, \"value\": vaultRef.balance})\n      flowSightResult[\"balances\"] = balancesObj\n    }\n    return true\n  })\n  /*END CHECK*/\n\n  return flowSightResult\n}"},{"name":"nft-count-check","cadence":"import NonFungibleToken from 0x631e88ae7f1d7c20\n\npub fun main(addr: Address): AnyStruct {\n  let flowSightAcct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check NFT Counts\"\n  let counts: [AnyStruct] = []\n  flowSightResult[\"counts\"] = counts\n  flowSightAcct.forEachStored(fun (path: StoragePath, type: Type): Bool {\n    if type.isSubtype(of: Type<@AnyResource{NonFungibleToken.CollectionPublic}>()) {\n      let collectionRef = flowSightAcct.borrow<&AnyResource{NonFungibleToken.CollectionPublic}>(from: path) ?? panic(\"Could not borrow Collection reference.\")\n      if collectionRef.getIDs().length > 0 {\n        var countsObj = flowSightResult[\"counts\"] as! [AnyStruct]?\n        countsObj!.append({\"type\": type.identifier, \"value\": collectionRef.getIDs().length})\n        flowSightResult[\"counts\"] = countsObj\n      }\n    }\n    return true\n  })\n  /*END CHECK*/\n\n  return flowSightResult\n}\n"},{"name":"private-path-check","cadence":"pub fun main(addr: Address): AnyStruct {\n  let flowSightAcct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check Private Path Capabilities\"\n  let capabilities: [AnyStruct] = []\n  flowSightResult[\"capabilities\"] = capabilities\n  flowSightAcct.forEachPrivate(fun (path: PrivatePath, type: Type): Bool {\n    var capabilitiesObj = flowSightResult[\"capabilities\"] as! [AnyStruct]?\n    capabilitiesObj!.append({\"type\": type.identifier})\n    flowSightResult[\"capabilities\"] = capabilitiesObj\n    return true\n  })\n  /*END CHECK*/\n\n  return flowSightResult\n}\n"},{"name":"public-path-check","cadence":"pub fun main(addr: Address): AnyStruct {\n  let flowSightAcct = getAuthAccount(addr)\n  let flowSightResult: {String: AnyStruct} = {}\n\n  /*START CHECK*/\n  flowSightResult[\"name\"] = \"Check Public Path Capabilities\"\n  let capabilities: [AnyStruct] = []\n  flowSightResult[\"capabilities\"] = capabilities\n  flowSightAcct.forEachPublic(fun (path: PublicPath, type: Type): Bool {\n    var capabilitiesObj = flowSightResult[\"capabilities\"] as! [AnyStruct]?\n    capabilitiesObj!.append({\"type\": type.identifier})\n    flowSightResult[\"capabilities\"] = capabilitiesObj\n    return true\n  })\n  /*END CHECK*/\n\n  return flowSightResult\n}\n"}]};
 
-    async function getChecks(network = "testnet") {
-        return CHECKS[network];
+    function getChecks(network = "testnet", filters = undefined) {
+        return CHECKS[network].filter((check) =>
+            filters ? filters.includes(check.name) : true
+        );
     }
 
     function _typeof$1(obj) {
@@ -83,6 +85,8 @@
         });
       };
     }
+
+    var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
     var regeneratorRuntimeExports = {};
     var regeneratorRuntime$1 = {
@@ -17699,7 +17703,7 @@
         cdc: template
     });
 
-    function buildCurrentStateJson(authorizers) {
+    function buildStateJson(authorizers) {
         const schema = { accounts: [] };
         for (let i = 0; i < authorizers.length; i++) {
             schema.accounts.push({ address: authorizers[i], checks: [] });
@@ -17707,17 +17711,29 @@
         return schema;
     }
 
+    function addCheckToState(checks, check, checkResult) {
+        checks.push({ ...checkResult, key: check.name });
+    }
+
     /*
         Please excuse the comments and lengthy code, this was
         written using copilot and I have not yet cleaned it up.
     */
     function convertTxToScript(txCode, authorizers) {
+        const regex = new RegExp('(?://.*|/\\*[\\s\\S]*?\\*/)', 'g');
+        const codeWithoutComments = txCode.replace(regex, '');
+
         // replace the transaction code with the script code
-        let scriptCode = txCode.replace("transaction", "pub fun main").trim();
+        let scriptCode = codeWithoutComments.replace("transaction", "pub fun main").trim();
+        
+        // check if there is a '(' after the string `pub fun main`, and if not then add one
+        if (!scriptCode.includes("pub fun main(")) {
+            scriptCode = scriptCode.replace("pub fun main", "pub fun main()");
+        }
 
         // after pub fun main and before the brace, add a `: Int` to the scriptCode, but keep what was in the args of the transaction
         scriptCode = scriptCode.replace(
-            /pub fun main\((.*?)\)\s*{/,
+            /pub fun main\((.*?)\)?\s*{/,
             "pub fun main($1): AnyStruct {"
         );
 
@@ -17795,8 +17811,9 @@
                 .trim();
 
             // add to the authAccounts string the prepareArgsWithoutColon as a new line in the string
-            authAccounts += `let ${prepareArgWithoutColon} = getAuthAccount(${authorizers[i]})\n`;
+            authAccounts += `let ${prepareArgWithoutColon} = getAuthAccount(${withPrefix$1(authorizers[i])})\n`;
         }
+        authAccounts += `let flowSightAcct = getAuthAccount(${withPrefix$1(authorizers[0])})`;
 
         // place the authAccounts string directly after the pub fun main line while keeping the pub fun main line as is
         scriptCode = scriptCode.replace(
@@ -17814,10 +17831,10 @@
         if (executeIndex !== -1) {
             // remove the closing curly brace closest before to the executeIndex with a regex statement
             scriptCode = scriptCode.replace(/}\s*execute\s*{/, "");
-
-            // remove the 2nd to last closing brace from scriptCode using a regex
-            scriptCode = scriptCode.replace(/}\s*}/, "}").trim();
         }
+
+        // remove the 2nd to last closing brace from scriptCode using a regex
+        scriptCode = scriptCode.replace(/}\s*}/, "}").trim();
 
         // before the last curly brace, add `return 1` to the scriptCode
         scriptCode = scriptCode.replace(
@@ -17833,6 +17850,571 @@
         return scriptCode;
     }
 
+    var deepDiffExports = {};
+    var deepDiff$1 = {
+      get exports(){ return deepDiffExports; },
+      set exports(v){ deepDiffExports = v; },
+    };
+
+    (function (module, exports) {
+    (function(root, factory) { // eslint-disable-line no-extra-semi
+    	  var deepDiff = factory(root);
+    	  // eslint-disable-next-line no-undef
+    	  {
+    	      // Node.js or ReactNative
+    	      module.exports = deepDiff;
+    	  }
+    	}(commonjsGlobal, function(root) {
+    	  var validKinds = ['N', 'E', 'A', 'D'];
+
+    	  // nodejs compatible on server side and in the browser.
+    	  function inherits(ctor, superCtor) {
+    	    ctor.super_ = superCtor;
+    	    ctor.prototype = Object.create(superCtor.prototype, {
+    	      constructor: {
+    	        value: ctor,
+    	        enumerable: false,
+    	        writable: true,
+    	        configurable: true
+    	      }
+    	    });
+    	  }
+
+    	  function Diff(kind, path) {
+    	    Object.defineProperty(this, 'kind', {
+    	      value: kind,
+    	      enumerable: true
+    	    });
+    	    if (path && path.length) {
+    	      Object.defineProperty(this, 'path', {
+    	        value: path,
+    	        enumerable: true
+    	      });
+    	    }
+    	  }
+
+    	  function DiffEdit(path, origin, value) {
+    	    DiffEdit.super_.call(this, 'E', path);
+    	    Object.defineProperty(this, 'lhs', {
+    	      value: origin,
+    	      enumerable: true
+    	    });
+    	    Object.defineProperty(this, 'rhs', {
+    	      value: value,
+    	      enumerable: true
+    	    });
+    	  }
+    	  inherits(DiffEdit, Diff);
+
+    	  function DiffNew(path, value) {
+    	    DiffNew.super_.call(this, 'N', path);
+    	    Object.defineProperty(this, 'rhs', {
+    	      value: value,
+    	      enumerable: true
+    	    });
+    	  }
+    	  inherits(DiffNew, Diff);
+
+    	  function DiffDeleted(path, value) {
+    	    DiffDeleted.super_.call(this, 'D', path);
+    	    Object.defineProperty(this, 'lhs', {
+    	      value: value,
+    	      enumerable: true
+    	    });
+    	  }
+    	  inherits(DiffDeleted, Diff);
+
+    	  function DiffArray(path, index, item) {
+    	    DiffArray.super_.call(this, 'A', path);
+    	    Object.defineProperty(this, 'index', {
+    	      value: index,
+    	      enumerable: true
+    	    });
+    	    Object.defineProperty(this, 'item', {
+    	      value: item,
+    	      enumerable: true
+    	    });
+    	  }
+    	  inherits(DiffArray, Diff);
+
+    	  function arrayRemove(arr, from, to) {
+    	    var rest = arr.slice((to || from) + 1 || arr.length);
+    	    arr.length = from < 0 ? arr.length + from : from;
+    	    arr.push.apply(arr, rest);
+    	    return arr;
+    	  }
+
+    	  function realTypeOf(subject) {
+    	    var type = typeof subject;
+    	    if (type !== 'object') {
+    	      return type;
+    	    }
+
+    	    if (subject === Math) {
+    	      return 'math';
+    	    } else if (subject === null) {
+    	      return 'null';
+    	    } else if (Array.isArray(subject)) {
+    	      return 'array';
+    	    } else if (Object.prototype.toString.call(subject) === '[object Date]') {
+    	      return 'date';
+    	    } else if (typeof subject.toString === 'function' && /^\/.*\//.test(subject.toString())) {
+    	      return 'regexp';
+    	    }
+    	    return 'object';
+    	  }
+
+    	  // http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+    	  function hashThisString(string) {
+    	    var hash = 0;
+    	    if (string.length === 0) { return hash; }
+    	    for (var i = 0; i < string.length; i++) {
+    	      var char = string.charCodeAt(i);
+    	      hash = ((hash << 5) - hash) + char;
+    	      hash = hash & hash; // Convert to 32bit integer
+    	    }
+    	    return hash;
+    	  }
+
+    	  // Gets a hash of the given object in an array order-independent fashion
+    	  // also object key order independent (easier since they can be alphabetized)
+    	  function getOrderIndependentHash(object) {
+    	    var accum = 0;
+    	    var type = realTypeOf(object);
+
+    	    if (type === 'array') {
+    	      object.forEach(function (item) {
+    	        // Addition is commutative so this is order indep
+    	        accum += getOrderIndependentHash(item);
+    	      });
+
+    	      var arrayString = '[type: array, hash: ' + accum + ']';
+    	      return accum + hashThisString(arrayString);
+    	    }
+
+    	    if (type === 'object') {
+    	      for (var key in object) {
+    	        if (object.hasOwnProperty(key)) {
+    	          var keyValueString = '[ type: object, key: ' + key + ', value hash: ' + getOrderIndependentHash(object[key]) + ']';
+    	          accum += hashThisString(keyValueString);
+    	        }
+    	      }
+
+    	      return accum;
+    	    }
+
+    	    // Non object, non array...should be good?
+    	    var stringToHash = '[ type: ' + type + ' ; value: ' + object + ']';
+    	    return accum + hashThisString(stringToHash);
+    	  }
+
+    	  function deepDiff(lhs, rhs, changes, prefilter, path, key, stack, orderIndependent) {
+    	    changes = changes || [];
+    	    path = path || [];
+    	    stack = stack || [];
+    	    var currentPath = path.slice(0);
+    	    if (typeof key !== 'undefined' && key !== null) {
+    	      if (prefilter) {
+    	        if (typeof (prefilter) === 'function' && prefilter(currentPath, key)) {
+    	          return;
+    	        } else if (typeof (prefilter) === 'object') {
+    	          if (prefilter.prefilter && prefilter.prefilter(currentPath, key)) {
+    	            return;
+    	          }
+    	          if (prefilter.normalize) {
+    	            var alt = prefilter.normalize(currentPath, key, lhs, rhs);
+    	            if (alt) {
+    	              lhs = alt[0];
+    	              rhs = alt[1];
+    	            }
+    	          }
+    	        }
+    	      }
+    	      currentPath.push(key);
+    	    }
+
+    	    // Use string comparison for regexes
+    	    if (realTypeOf(lhs) === 'regexp' && realTypeOf(rhs) === 'regexp') {
+    	      lhs = lhs.toString();
+    	      rhs = rhs.toString();
+    	    }
+
+    	    var ltype = typeof lhs;
+    	    var rtype = typeof rhs;
+    	    var i, j, k, other;
+
+    	    var ldefined = ltype !== 'undefined' ||
+    	      (stack && (stack.length > 0) && stack[stack.length - 1].lhs &&
+    	        Object.getOwnPropertyDescriptor(stack[stack.length - 1].lhs, key));
+    	    var rdefined = rtype !== 'undefined' ||
+    	      (stack && (stack.length > 0) && stack[stack.length - 1].rhs &&
+    	        Object.getOwnPropertyDescriptor(stack[stack.length - 1].rhs, key));
+
+    	    if (!ldefined && rdefined) {
+    	      changes.push(new DiffNew(currentPath, rhs));
+    	    } else if (!rdefined && ldefined) {
+    	      changes.push(new DiffDeleted(currentPath, lhs));
+    	    } else if (realTypeOf(lhs) !== realTypeOf(rhs)) {
+    	      changes.push(new DiffEdit(currentPath, lhs, rhs));
+    	    } else if (realTypeOf(lhs) === 'date' && (lhs - rhs) !== 0) {
+    	      changes.push(new DiffEdit(currentPath, lhs, rhs));
+    	    } else if (ltype === 'object' && lhs !== null && rhs !== null) {
+    	      for (i = stack.length - 1; i > -1; --i) {
+    	        if (stack[i].lhs === lhs) {
+    	          other = true;
+    	          break;
+    	        }
+    	      }
+    	      if (!other) {
+    	        stack.push({ lhs: lhs, rhs: rhs });
+    	        if (Array.isArray(lhs)) {
+    	          // If order doesn't matter, we need to sort our arrays
+    	          if (orderIndependent) {
+    	            lhs.sort(function (a, b) {
+    	              return getOrderIndependentHash(a) - getOrderIndependentHash(b);
+    	            });
+
+    	            rhs.sort(function (a, b) {
+    	              return getOrderIndependentHash(a) - getOrderIndependentHash(b);
+    	            });
+    	          }
+    	          i = rhs.length - 1;
+    	          j = lhs.length - 1;
+    	          while (i > j) {
+    	            changes.push(new DiffArray(currentPath, i, new DiffNew(undefined, rhs[i--])));
+    	          }
+    	          while (j > i) {
+    	            changes.push(new DiffArray(currentPath, j, new DiffDeleted(undefined, lhs[j--])));
+    	          }
+    	          for (; i >= 0; --i) {
+    	            deepDiff(lhs[i], rhs[i], changes, prefilter, currentPath, i, stack, orderIndependent);
+    	          }
+    	        } else {
+    	          var akeys = Object.keys(lhs);
+    	          var pkeys = Object.keys(rhs);
+    	          for (i = 0; i < akeys.length; ++i) {
+    	            k = akeys[i];
+    	            other = pkeys.indexOf(k);
+    	            if (other >= 0) {
+    	              deepDiff(lhs[k], rhs[k], changes, prefilter, currentPath, k, stack, orderIndependent);
+    	              pkeys[other] = null;
+    	            } else {
+    	              deepDiff(lhs[k], undefined, changes, prefilter, currentPath, k, stack, orderIndependent);
+    	            }
+    	          }
+    	          for (i = 0; i < pkeys.length; ++i) {
+    	            k = pkeys[i];
+    	            if (k) {
+    	              deepDiff(undefined, rhs[k], changes, prefilter, currentPath, k, stack, orderIndependent);
+    	            }
+    	          }
+    	        }
+    	        stack.length = stack.length - 1;
+    	      } else if (lhs !== rhs) {
+    	        // lhs is contains a cycle at this element and it differs from rhs
+    	        changes.push(new DiffEdit(currentPath, lhs, rhs));
+    	      }
+    	    } else if (lhs !== rhs) {
+    	      if (!(ltype === 'number' && isNaN(lhs) && isNaN(rhs))) {
+    	        changes.push(new DiffEdit(currentPath, lhs, rhs));
+    	      }
+    	    }
+    	  }
+
+    	  function observableDiff(lhs, rhs, observer, prefilter, orderIndependent) {
+    	    var changes = [];
+    	    deepDiff(lhs, rhs, changes, prefilter, null, null, null, orderIndependent);
+    	    if (observer) {
+    	      for (var i = 0; i < changes.length; ++i) {
+    	        observer(changes[i]);
+    	      }
+    	    }
+    	    return changes;
+    	  }
+
+    	  function orderIndependentDeepDiff(lhs, rhs, changes, prefilter, path, key, stack) {
+    	    return deepDiff(lhs, rhs, changes, prefilter, path, key, stack, true);
+    	  }
+
+    	  function accumulateDiff(lhs, rhs, prefilter, accum) {
+    	    var observer = (accum) ?
+    	      function (difference) {
+    	        if (difference) {
+    	          accum.push(difference);
+    	        }
+    	      } : undefined;
+    	    var changes = observableDiff(lhs, rhs, observer, prefilter);
+    	    return (accum) ? accum : (changes.length) ? changes : undefined;
+    	  }
+
+    	  function accumulateOrderIndependentDiff(lhs, rhs, prefilter, accum) {
+    	    var observer = (accum) ?
+    	      function (difference) {
+    	        if (difference) {
+    	          accum.push(difference);
+    	        }
+    	      } : undefined;
+    	    var changes = observableDiff(lhs, rhs, observer, prefilter, true);
+    	    return (accum) ? accum : (changes.length) ? changes : undefined;
+    	  }
+
+    	  function applyArrayChange(arr, index, change) {
+    	    if (change.path && change.path.length) {
+    	      var it = arr[index],
+    	        i, u = change.path.length - 1;
+    	      for (i = 0; i < u; i++) {
+    	        it = it[change.path[i]];
+    	      }
+    	      switch (change.kind) {
+    	        case 'A':
+    	          applyArrayChange(it[change.path[i]], change.index, change.item);
+    	          break;
+    	        case 'D':
+    	          delete it[change.path[i]];
+    	          break;
+    	        case 'E':
+    	        case 'N':
+    	          it[change.path[i]] = change.rhs;
+    	          break;
+    	      }
+    	    } else {
+    	      switch (change.kind) {
+    	        case 'A':
+    	          applyArrayChange(arr[index], change.index, change.item);
+    	          break;
+    	        case 'D':
+    	          arr = arrayRemove(arr, index);
+    	          break;
+    	        case 'E':
+    	        case 'N':
+    	          arr[index] = change.rhs;
+    	          break;
+    	      }
+    	    }
+    	    return arr;
+    	  }
+
+    	  function applyChange(target, source, change) {
+    	    if (typeof change === 'undefined' && source && ~validKinds.indexOf(source.kind)) {
+    	      change = source;
+    	    }
+    	    if (target && change && change.kind) {
+    	      var it = target,
+    	        i = -1,
+    	        last = change.path ? change.path.length - 1 : 0;
+    	      while (++i < last) {
+    	        if (typeof it[change.path[i]] === 'undefined') {
+    	          it[change.path[i]] = (typeof change.path[i + 1] !== 'undefined' && typeof change.path[i + 1] === 'number') ? [] : {};
+    	        }
+    	        it = it[change.path[i]];
+    	      }
+    	      switch (change.kind) {
+    	        case 'A':
+    	          if (change.path && typeof it[change.path[i]] === 'undefined') {
+    	            it[change.path[i]] = [];
+    	          }
+    	          applyArrayChange(change.path ? it[change.path[i]] : it, change.index, change.item);
+    	          break;
+    	        case 'D':
+    	          delete it[change.path[i]];
+    	          break;
+    	        case 'E':
+    	        case 'N':
+    	          it[change.path[i]] = change.rhs;
+    	          break;
+    	      }
+    	    }
+    	  }
+
+    	  function revertArrayChange(arr, index, change) {
+    	    if (change.path && change.path.length) {
+    	      // the structure of the object at the index has changed...
+    	      var it = arr[index],
+    	        i, u = change.path.length - 1;
+    	      for (i = 0; i < u; i++) {
+    	        it = it[change.path[i]];
+    	      }
+    	      switch (change.kind) {
+    	        case 'A':
+    	          revertArrayChange(it[change.path[i]], change.index, change.item);
+    	          break;
+    	        case 'D':
+    	          it[change.path[i]] = change.lhs;
+    	          break;
+    	        case 'E':
+    	          it[change.path[i]] = change.lhs;
+    	          break;
+    	        case 'N':
+    	          delete it[change.path[i]];
+    	          break;
+    	      }
+    	    } else {
+    	      // the array item is different...
+    	      switch (change.kind) {
+    	        case 'A':
+    	          revertArrayChange(arr[index], change.index, change.item);
+    	          break;
+    	        case 'D':
+    	          arr[index] = change.lhs;
+    	          break;
+    	        case 'E':
+    	          arr[index] = change.lhs;
+    	          break;
+    	        case 'N':
+    	          arr = arrayRemove(arr, index);
+    	          break;
+    	      }
+    	    }
+    	    return arr;
+    	  }
+
+    	  function revertChange(target, source, change) {
+    	    if (target && source && change && change.kind) {
+    	      var it = target,
+    	        i, u;
+    	      u = change.path.length - 1;
+    	      for (i = 0; i < u; i++) {
+    	        if (typeof it[change.path[i]] === 'undefined') {
+    	          it[change.path[i]] = {};
+    	        }
+    	        it = it[change.path[i]];
+    	      }
+    	      switch (change.kind) {
+    	        case 'A':
+    	          // Array was modified...
+    	          // it will be an array...
+    	          revertArrayChange(it[change.path[i]], change.index, change.item);
+    	          break;
+    	        case 'D':
+    	          // Item was deleted...
+    	          it[change.path[i]] = change.lhs;
+    	          break;
+    	        case 'E':
+    	          // Item was edited...
+    	          it[change.path[i]] = change.lhs;
+    	          break;
+    	        case 'N':
+    	          // Item is new...
+    	          delete it[change.path[i]];
+    	          break;
+    	      }
+    	    }
+    	  }
+
+    	  function applyDiff(target, source, filter) {
+    	    if (target && source) {
+    	      var onChange = function (change) {
+    	        if (!filter || filter(target, source, change)) {
+    	          applyChange(target, source, change);
+    	        }
+    	      };
+    	      observableDiff(target, source, onChange);
+    	    }
+    	  }
+
+    	  Object.defineProperties(accumulateDiff, {
+
+    	    diff: {
+    	      value: accumulateDiff,
+    	      enumerable: true
+    	    },
+    	    orderIndependentDiff: {
+    	      value: accumulateOrderIndependentDiff,
+    	      enumerable: true
+    	    },
+    	    observableDiff: {
+    	      value: observableDiff,
+    	      enumerable: true
+    	    },
+    	    orderIndependentObservableDiff: {
+    	      value: orderIndependentDeepDiff,
+    	      enumerable: true
+    	    },
+    	    orderIndepHash: {
+    	      value: getOrderIndependentHash,
+    	      enumerable: true
+    	    },
+    	    applyDiff: {
+    	      value: applyDiff,
+    	      enumerable: true
+    	    },
+    	    applyChange: {
+    	      value: applyChange,
+    	      enumerable: true
+    	    },
+    	    revertChange: {
+    	      value: revertChange,
+    	      enumerable: true
+    	    },
+    	    isConflict: {
+    	      value: function () {
+    	        return typeof $conflict !== 'undefined';
+    	      },
+    	      enumerable: true
+    	    }
+    	  });
+
+    	  // hackish...
+    	  accumulateDiff.DeepDiff = accumulateDiff;
+    	  // ...but works with:
+    	  // import DeepDiff from 'deep-diff'
+    	  // import { DeepDiff } from 'deep-diff'
+    	  // const DeepDiff = require('deep-diff');
+    	  // const { DeepDiff } = require('deep-diff');
+
+    	  if (root) {
+    	    root.DeepDiff = accumulateDiff;
+    	  }
+
+    	  return accumulateDiff;
+    	}));
+    } (deepDiff$1));
+
+    var deepDiff = deepDiffExports;
+
+    function extractAddressFromPath(state, path) {
+        if (path[0] !== "accounts") {
+            throw new Error("Path does not start with accounts");
+        }
+        if (path.length < 2) {
+            throw new Error("Path does not have enough elements");
+        }
+        return state[path[0]][path[1]].address;
+    }
+
+    function extractCheckFromPath(state, path) {
+        if (path[0] !== "accounts") {
+            throw new Error("Path does not start with accounts");
+        }
+        if (path.length < 4) {
+            throw new Error("Path does not have enough elements");
+        }
+        return state[path[0]][path[1]][path[2]][path[3]];
+    }
+
+    function convertDiffToHumanReadable(currentState, diff) {
+        return {
+            address: extractAddressFromPath(currentState, diff.path),
+            checkReadable: extractCheckFromPath(currentState, diff.path).name,
+            check: extractCheckFromPath(currentState, diff.path).key,
+            propertyChanged: diff.path[4],
+            currentStateValue: diff.lhs,
+            proposedStateValue: diff.rhs,
+            humanReadableChange: "TODO",
+        };
+    }
+
+    function generateDiff(currentState, proposedState) {
+        const generatedDiff = deepDiff.diff(currentState, proposedState);
+        if (generatedDiff) {
+            return generatedDiff.map((d) =>
+                convertDiffToHumanReadable(currentState, d)
+            );
+        } else {
+            return [];
+        }
+    }
+
     const DEFAULT_NETWORK = "testnet";
 
     async function getCurrentState(fcl, authorizers, providedChecks) {
@@ -17842,7 +18424,7 @@
             );
         }
 
-        const currentState = buildCurrentStateJson(authorizers);
+        const currentState = buildStateJson(authorizers);
         // loop through all authorizers
         for (let account of currentState.accounts) {
             const { address, checks } = account;
@@ -17851,26 +18433,31 @@
                 const result = await fcl
                     .send([
                         fcl.script(check.cadence),
-                        fcl.args([fcl.arg(address, Address)]),
+                        fcl.args([fcl.arg(fcl.withPrefix(address), Address)]),
                         fcl.limit(1000),
                     ])
                     .then(fcl.decode);
-
-                checks.push(result);
+                addCheckToState(checks, check, result);
             }
         }
 
         return currentState;
     }
 
-    async function getNewState(fcl, authorizers, providedChecks, txScript, args) {
+    async function getProposedState(
+        fcl,
+        authorizers,
+        providedChecks,
+        txScript,
+        args
+    ) {
         if (!providedChecks) {
             providedChecks = await getChecks(
                 await fcl.config().get("flow.network", DEFAULT_NETWORK)
             );
         }
 
-        const currentState = buildCurrentStateJson(authorizers);
+        const currentState = buildStateJson(authorizers);
         // loop through all authorizers
         for (let account of currentState.accounts) {
             const { address, checks } = account;
@@ -17896,35 +18483,42 @@
                 const result = await fcl
                     .send([fcl.script(curScript), fcl.args(args), fcl.limit(1000)])
                     .then(fcl.decode);
-
-                checks.push(result);
+                addCheckToState(checks, check, result);
             }
         }
 
         return currentState;
     }
 
-    async function dryRunTx(fcl, txCode, args, authorizers) {
-        const checks = await getChecks(
-            await fcl.config().get("flow.network", DEFAULT_NETWORK)
-        );
+    async function dryRunTx(fcl, txCode, args, authorizers, providedChecks) {
+        if (!providedChecks) {
+            providedChecks = await getChecks(
+                await fcl.config().get("flow.network", DEFAULT_NETWORK)
+            );
+        }
 
-        const currentState = await getCurrentState(fcl, authorizers, checks);
+        const currentState = await getCurrentState(
+            fcl,
+            authorizers,
+            providedChecks
+        );
 
         const scriptCode = convertTxToScript(txCode, authorizers);
 
-        console.log('script code is', scriptCode);
-        const newState = await getNewState(
+        const proposedState = await getProposedState(
             fcl,
             authorizers,
-            checks,
+            providedChecks,
             scriptCode,
             args
         );
 
+        const diff = generateDiff(currentState, proposedState);
+
         return {
+            diff,
             currentState,
-            newState,
+            proposedState,
         };
     }
 
@@ -17933,13 +18527,13 @@
         window.flowSightTypes = t$1;
         window.flowSightGetChecks = getChecks;
         window.flowSightGetCurrentState = getCurrentState;
-        window.flowSightDryRunTx = (fcl, txCode, args, authorizers) => {
-            return dryRunTx(fcl, txCode, args, authorizers);
-        };
+        window.flowSightGetProposedState = getProposedState;
+        window.flowSightDryRunTx = dryRunTx;
     }
 
     exports.dryRunTx = dryRunTx;
     exports.getChecks = getChecks;
     exports.getCurrentState = getCurrentState;
+    exports.getProposedState = getProposedState;
 
 }));

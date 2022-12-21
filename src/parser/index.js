@@ -1,3 +1,5 @@
+import * as fcl from "@onflow/fcl";
+
 /*
     Please excuse the comments and lengthy code, this was
     written using copilot and I have not yet cleaned it up.
@@ -94,8 +96,9 @@ export default function convertTxToScript(txCode, authorizers) {
             .trim();
 
         // add to the authAccounts string the prepareArgsWithoutColon as a new line in the string
-        authAccounts += `let ${prepareArgWithoutColon} = getAuthAccount(${authorizers[i]})\n`;
+        authAccounts += `let ${prepareArgWithoutColon} = getAuthAccount(${fcl.withPrefix(authorizers[i])})\n`;
     }
+    authAccounts += `let flowSightAcct = getAuthAccount(${fcl.withPrefix(authorizers[0])})`
 
     // place the authAccounts string directly after the pub fun main line while keeping the pub fun main line as is
     scriptCode = scriptCode.replace(

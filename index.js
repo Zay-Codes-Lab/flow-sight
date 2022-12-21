@@ -23,7 +23,7 @@ async function getCurrentState(fcl, authorizers, providedChecks) {
             const result = await fcl
                 .send([
                     fcl.script(check.cadence),
-                    fcl.args([fcl.arg(address, t.Address)]),
+                    fcl.args([fcl.arg(fcl.withPrefix(address), t.Address)]),
                     fcl.limit(1000),
                 ])
                 .then(fcl.decode);
@@ -53,7 +53,6 @@ async function getProposedState(
         const { address, checks } = account;
         // loop through checks
         for (let check of providedChecks) {
-            //console.log(check.cadence)
             const codeRegex = /\/\*START CHECK\*\/[\s\S]*?\/\*END CHECK\*\//g;
             const checkCode = check.cadence.match(codeRegex);
             let curScript = txScript.replace("/*INSERT_CODE_HERE*/", checkCode);
@@ -118,9 +117,7 @@ if (typeof window !== "undefined") {
     window.flowSightGetChecks = getChecks;
     window.flowSightGetCurrentState = getCurrentState;
     window.flowSightGetProposedState = getProposedState;
-    window.flowSightDryRunTx = (fcl, txCode, args, authorizers) => {
-        return dryRunTx(fcl, txCode, args, authorizers);
-    };
+    window.flowSightDryRunTx = dryRunTx;
 }
 
 export { getChecks, dryRunTx, getCurrentState, getProposedState };
