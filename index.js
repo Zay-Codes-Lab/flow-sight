@@ -80,19 +80,25 @@ async function getProposedState(
     return currentState;
 }
 
-async function dryRunTx(fcl, txCode, args, authorizers) {
-    const checks = await getChecks(
-        await fcl.config().get("flow.network", DEFAULT_NETWORK)
-    );
+async function dryRunTx(fcl, txCode, args, authorizers, providedChecks) {
+    if (!providedChecks) {
+        providedChecks = await getChecks(
+            await fcl.config().get("flow.network", DEFAULT_NETWORK)
+        );
+    }
 
-    const currentState = await getCurrentState(fcl, authorizers, checks);
+    const currentState = await getCurrentState(
+        fcl,
+        authorizers,
+        providedChecks
+    );
 
     const scriptCode = convertTxToScript(txCode, authorizers);
 
     const proposedState = await getProposedState(
         fcl,
         authorizers,
-        checks,
+        providedChecks,
         scriptCode,
         args
     );

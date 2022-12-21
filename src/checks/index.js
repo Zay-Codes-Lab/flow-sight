@@ -1,7 +1,9 @@
 import CHECKS from "../generated/cadenceChecks.js";
 
-async function getChecks(network = "testnet") {
-    return CHECKS[network];
+function getChecks(network = "testnet", filters = undefined) {
+    return CHECKS[network].filter((check) =>
+        filters ? filters.includes(check.name) : true
+    );
 }
 
 export default getChecks;

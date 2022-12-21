@@ -3,7 +3,7 @@ import fs from "fs";
 import fcl from "@onflow/fcl";
 import { decode } from "@onflow/decode";
 import { mapValuesToCode } from "@onflow/flow-cadut";
-import { getCurrentState, dryRunTx } from "../index.js";
+import { getCurrentState, dryRunTx, getChecks } from "../index.js";
 
 async function currentState(addresses, options) {
     // Setup FCL.
@@ -16,7 +16,8 @@ async function currentState(addresses, options) {
         )
         .put("flow.network", options.network);
 
-    const state = await getCurrentState(fcl, addresses);
+    const checks = getChecks(options.network, options.checks);
+    const state = await getCurrentState(fcl, addresses, checks);
     console.log(JSON.stringify(state, null, 2));
 }
 
@@ -39,7 +40,8 @@ async function dryRun(cadenceFile, jsonArgs, addresses, options) {
     const args = await mapValuesToCode(txCode, decodedArgs);
 
     // Need a wallet with no broken contract resources(NFTs)
-    const states = await dryRunTx(fcl, txCode, args, addresses);
+    const checks = getChecks(options.network, options.checks);
+    const states = await dryRunTx(fcl, txCode, args, addresses, checks);
     console.log(JSON.stringify(states, null, 2));
 }
 
@@ -53,6 +55,10 @@ program
     .description("Return the current state based on the available checks.")
     .argument("<addresses...>", "list of addresses to check")
     .option("-n, --network <network>", "Flow network", "testnet")
+    .option(
+        "-c, --checks <checks...>",
+        "Checks to run, if none provided, all checks will be run"
+    )
     .action((addresses, options) => currentState(addresses, options));
 
 program
@@ -62,6 +68,10 @@ program
     .argument("<jsonArgs>", "JSON arguments for the transaction in FCL format")
     .argument("<addresses...>", "list of addresses to check")
     .option("-n, --network <network>", "Flow network", "testnet")
+    .option(
+        "-c, --checks <checks...>",
+        "Checks to run, if none provided, all checks will be run"
+    )
     .action((cadenceFile, jsonArgs, addresses, options) =>
         dryRun(cadenceFile, jsonArgs, addresses, options)
     );

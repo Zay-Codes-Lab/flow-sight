@@ -34,8 +34,11 @@ function convertDiffToHumanReadable(currentState, diff) {
 
 export function generateDiff(currentState, proposedState) {
     const generatedDiff = deepDiff.diff(currentState, proposedState);
-
-    return generatedDiff.map((d) =>
-        convertDiffToHumanReadable(currentState, d)
-    );
+    if (generatedDiff) {
+        return generatedDiff.map((d) =>
+            convertDiffToHumanReadable(currentState, d)
+        );
+    } else {
+        return [];
+    }
 }
