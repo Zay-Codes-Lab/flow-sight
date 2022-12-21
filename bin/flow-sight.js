@@ -3,9 +3,9 @@ import fs from "fs";
 import fcl from "@onflow/fcl";
 import { decode } from "@onflow/decode";
 import { mapValuesToCode } from "@onflow/flow-cadut";
-import { getCurrentState, dryRunTx, getChecks } from "../index.js";
+import { getCurrentStates, dryRunTx, getChecks } from "../index.js";
 
-async function currentState(addresses, options) {
+async function currentStates(addresses, options) {
     // Setup FCL.
     fcl.config()
         .put(
@@ -17,7 +17,7 @@ async function currentState(addresses, options) {
         .put("flow.network", options.network);
 
     const checks = getChecks(options.network, options.checks);
-    const state = await getCurrentState(fcl, addresses, checks);
+    const state = await getCurrentStates(fcl, addresses, checks);
     console.log(JSON.stringify(state, null, 2));
 }
 
@@ -51,7 +51,7 @@ program
     .version("1.0.0");
 
 program
-    .command("current-state")
+    .command("current-states")
     .description("Return the current state based on the available checks.")
     .argument("<addresses...>", "list of addresses to check")
     .option("-n, --network <network>", "Flow network", "testnet")
@@ -59,7 +59,7 @@ program
         "-c, --checks <checks...>",
         "Checks to run, if none provided, all checks will be run"
     )
-    .action((addresses, options) => currentState(addresses, options));
+    .action((addresses, options) => currentStates(addresses, options));
 
 program
     .command("dry-run")

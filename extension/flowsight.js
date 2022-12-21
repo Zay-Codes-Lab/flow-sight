@@ -17719,7 +17719,7 @@
         Please excuse the comments and lengthy code, this was
         written using copilot and I have not yet cleaned it up.
     */
-    function convertTxToScript(txCode, authorizers) {
+    function convertTxToScript(txCode, authorizers, checkingAddress) {
         const regex = new RegExp('(?://.*|/\\*[\\s\\S]*?\\*/)', 'g');
         const codeWithoutComments = txCode.replace(regex, '');
 
@@ -17813,7 +17813,7 @@
             // add to the authAccounts string the prepareArgsWithoutColon as a new line in the string
             authAccounts += `let ${prepareArgWithoutColon} = getAuthAccount(${withPrefix$1(authorizers[i])})\n`;
         }
-        authAccounts += `let flowSightAcct = getAuthAccount(${withPrefix$1(authorizers[0])})`;
+        authAccounts += `let flowSightAcct = getAuthAccount(${withPrefix$1(checkingAddress)})`;
 
         // place the authAccounts string directly after the pub fun main line while keeping the pub fun main line as is
         scriptCode = scriptCode.replace(
@@ -18417,14 +18417,14 @@
 
     const DEFAULT_NETWORK = "testnet";
 
-    async function getCurrentState(fcl, authorizers, providedChecks) {
+    async function getCurrentStates(fcl, addresses, providedChecks) {
         if (!providedChecks) {
             providedChecks = await getChecks(
                 await fcl.config().get("flow.network", DEFAULT_NETWORK)
             );
         }
 
-        const currentState = buildStateJson(authorizers);
+        const currentState = buildStateJson(addresses);
         // loop through all authorizers
         for (let account of currentState.accounts) {
             const { address, checks } = account;
@@ -18446,7 +18446,7 @@
 
     async function getProposedState(
         fcl,
-        authorizers,
+        address,
         providedChecks,
         txScript,
         args
@@ -18457,10 +18457,10 @@
             );
         }
 
-        const currentState = buildStateJson(authorizers);
+        const currentState = buildStateJson([address]);
         // loop through all authorizers
         for (let account of currentState.accounts) {
-            const { address, checks } = account;
+            const { checks } = account;
             // loop through checks
             for (let check of providedChecks) {
                 const codeRegex = /\/\*START CHECK\*\/[\s\S]*?\/\*END CHECK\*\//g;
@@ -18486,7 +18486,7 @@
             }
         }
 
-        return currentState;
+        return currentState.accounts;
     }
 
     async function dryRunTx(fcl, txCode, args, authorizers, providedChecks) {
@@ -18496,28 +18496,37 @@
             );
         }
 
-        const currentState = await getCurrentState(
+
+
+        const addresses = [...new Set([...args.filter(arg => arg.xform.label === 'Address').map(arg => fcl.withPrefix(arg.value)), ...authorizers])];
+
+        const currentStates = await getCurrentStates(
             fcl,
-            authorizers,
+            addresses,
             providedChecks
         );
 
-        const scriptCode = convertTxToScript(txCode, authorizers);
+        const proposedStates = {accounts : []};
+        for (const address of addresses) {
 
-        const proposedState = await getProposedState(
-            fcl,
-            authorizers,
-            providedChecks,
-            scriptCode,
-            args
-        );
+            const scriptCode = convertTxToScript(txCode, authorizers, address);
 
-        const diff = generateDiff(currentState, proposedState);
+            const proposedState = await getProposedState(
+                fcl,
+                address,
+                providedChecks,
+                scriptCode,
+                args
+            );
+            proposedStates.accounts.push(...proposedState);
+        }
+
+        const diff = generateDiff(currentStates, proposedStates);
 
         return {
             diff,
-            currentState,
-            proposedState,
+            currentStates,
+            proposedStates,
         };
     }
 
@@ -18525,14 +18534,14 @@
         window.flowSightFCL = fclGlobal;
         window.flowSightTypes = t$1;
         window.flowSightGetChecks = getChecks;
-        window.flowSightGetCurrentState = getCurrentState;
+        window.flowSightGetCurrentState = getCurrentStates;
         window.flowSightGetProposedState = getProposedState;
         window.flowSightDryRunTx = dryRunTx;
     }
 
     exports.dryRunTx = dryRunTx;
     exports.getChecks = getChecks;
-    exports.getCurrentState = getCurrentState;
+    exports.getCurrentStates = getCurrentStates;
     exports.getProposedState = getProposedState;
 
 }));
