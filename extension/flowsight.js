@@ -17913,6 +17913,7 @@
 
         const scriptCode = convertTxToScript(txCode, authorizers);
 
+        console.log('script code is', scriptCode);
         const newState = await getNewState(
             fcl,
             authorizers,

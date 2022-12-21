@@ -19,7 +19,6 @@ const run = async function () {
       const arguments = codeBlocks[1].innerText
 
       // dry run the tx
-      // TODO: The arguments need to be parsed into proper types
       const dryRunResult = await flowSightDryRunTx(flowSightFCL, sourceCode, [], [userAddress])
       console.log(dryRunResult)
 
@@ -37,4 +36,4 @@ const run = async function () {
 
 setTimeout(() => {
   run()
-}, 1000)
+}, 3000)
