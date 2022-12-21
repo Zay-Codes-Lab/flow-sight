@@ -3,12 +3,20 @@
     written using copilot and I have not yet cleaned it up.
 */
 export default function convertTxToScript(txCode, authorizers) {
+    const regex = new RegExp('(?://.*|/\\*[\\s\\S]*?\\*/)', 'g');
+    const codeWithoutComments = txCode.replace(regex, '');
+
     // replace the transaction code with the script code
-    let scriptCode = txCode.replace("transaction", "pub fun main").trim();
+    let scriptCode = codeWithoutComments.replace("transaction", "pub fun main").trim();
+    
+    // check if there is a '(' after the string `pub fun main`, and if not then add one
+    if (!scriptCode.includes("pub fun main(")) {
+        scriptCode = scriptCode.replace("pub fun main", "pub fun main()");
+    }
 
     // after pub fun main and before the brace, add a `: Int` to the scriptCode, but keep what was in the args of the transaction
     scriptCode = scriptCode.replace(
-        /pub fun main\((.*?)\)\s*{/,
+        /pub fun main\((.*?)\)?\s*{/,
         "pub fun main($1): AnyStruct {"
     );
 
@@ -105,10 +113,10 @@ export default function convertTxToScript(txCode, authorizers) {
     if (executeIndex !== -1) {
         // remove the closing curly brace closest before to the executeIndex with a regex statement
         scriptCode = scriptCode.replace(/}\s*execute\s*{/, "");
-
-        // remove the 2nd to last closing brace from scriptCode using a regex
-        scriptCode = scriptCode.replace(/}\s*}/, "}").trim();
     }
+
+    // remove the 2nd to last closing brace from scriptCode using a regex
+    scriptCode = scriptCode.replace(/}\s*}/, "}").trim();
 
     // before the last curly brace, add `return 1` to the scriptCode
     scriptCode = scriptCode.replace(
