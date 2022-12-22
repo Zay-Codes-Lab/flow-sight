@@ -66,7 +66,7 @@ const createUI = (el) => {
       // within the diffContainer div, add some colored loading text
       const loadingText = document.createElement("p");
       loadingText.innerText = "Loading Preview..."
-      loadingText.style = "color: #7d510b; text-align: center;"
+      loadingText.style = "color: #7d510b; text-align: center; margin-top: 12px;"
       diffContainer.appendChild(loadingText);
 
       // ad diffContainer after the div
@@ -94,7 +94,7 @@ const updateUI = (diff) => {
   for (const check in checks) {
     // create a div that holds the check name and a list of changes
     const checkDiv = document.createElement("div");
-    checkDiv.style = "background-color: #7d510b; padding: 5px; margin: 5px; border-radius: 10px;"
+    checkDiv.style = "background-color: #7d510b; padding: 12px; margin: 5px; border-radius: 10px;"
     const checkText = document.createElement("p");
     checkText.innerText = check
     
@@ -117,7 +117,7 @@ const updateUI = (diff) => {
     list.style = "list-style-type: none; padding: 0; margin: 0; display: none;"
     const showMore = document.createElement("span");
     showMore.innerText = "Show more"
-    showMore.style = "color: #111; cursor: pointer; text-align: center;"
+    showMore.style = "color: #111; cursor: pointer; text-align: center; text-decoration: underline;"
     showMore.addEventListener("click", function() {
       if (list.style.display === "none") {
         list.style.display = "block";
@@ -194,7 +194,6 @@ const run = async function (iteration) {
       // dry run the tx
       const userAddress = await retrieveUserAddress()
       const dryRunResult = await flowSightDryRunTx(flowSightFCL, sourceCode, [], [userAddress], null)
-
 
       updateUI(dryRunResult.diff)
     });

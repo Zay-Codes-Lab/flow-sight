@@ -12,6 +12,12 @@
       "js": ["flowsight.js", "dapper_inject.js"],
       "run_at": "document_end",
       "all_frames": true
+    },
+    {
+      "matches": ["https://flow-wallet.blocto.app/authz/*"],
+      "js": ["flowsight.js", "blocto_inject.js"],
+      "run_at": "document_end",
+      "all_frames": true
     }
   ]
 }
