@@ -35,21 +35,24 @@ export function generateDiff(currentState, proposedState) {
                 if (key === "key" || key === "name") {
                     continue;
                 }
-
-                const generatedDiff = humanDiff.diff(
-                    check[key],
-                    proposedCheck[key]
-                );
-                if (generatedDiff && generatedDiff.length > 0) {
-                    generatedDiff.forEach((d) =>
-                        diffs.push({
-                            address: address,
-                            checkReadable: check.name,
-                            check: check.key,
-                            propertyChanged: key,
-                            humanReadable: d,
-                        })
+                try {
+                    const generatedDiff = humanDiff.diff(
+                        check[key],
+                        proposedCheck[key]
                     );
+                    if (generatedDiff && generatedDiff.length > 0) {
+                        generatedDiff.forEach((d) =>
+                            diffs.push({
+                                address: address,
+                                checkReadable: check.name,
+                                check: check.key,
+                                propertyChanged: key,
+                                humanReadable: d,
+                            })
+                        );
+                    }
+                } catch (e) {
+                    console.error("Error while generating diff", e);
                 }
             }
         }

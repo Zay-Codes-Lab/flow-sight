@@ -42,7 +42,7 @@ const retrieveUserAddress = async () => {
   return window.flowSightFCL.withPrefix(getAccountResponse.data.getAccount.flowAccountID)
 }
 
-const createUI = () => {
+const createUI = (diff) => {
   Array
     .from(window.document.getElementsByTagName("div"))
     .filter(function(item){
@@ -64,10 +64,24 @@ const createUI = () => {
       text2.style = "font-weight: 400; text-align: center;"
       text.appendChild(text2);
 
-      div.style = "background-color: #1f1f1f; padding: 5px; margin: 5px; border-radius: 10px;"
+      for (const change of diff) {
+        // Add a bordered warning sign box within div that prints diff.checkReadable as a header, and diff.humanReadable as the body
+        const warning = document.createElement("div");
+
+        // create a backgroundcolor variable taht holds the hex code to a yellowish information color
+        warning.style = "background-color: #fca503; padding: 5px; margin: 5px; border-radius: 10px;"
+        const warningText = document.createElement("p");
+        warningText.innerText = change.checkReadable + "\n" + change.humanReadable.replace(/Capability<&A\.\d+\.|Capability/g, "")
+        warningText.style = "font-weight: 400; text-align: center; max-width: 360px; overflow-wrap: break-word;"
+        warning.appendChild(warningText);
+        div.appendChild(warning);
+      }
+
+      div.style = "background-color: #111; padding: 5px; margin: 5px; border-radius: 10px; max-width: 400px;"
 
       // place the div under the item
       item.parentNode.insertBefore(div, item.nextSibling);
+      
       
     });
 }
@@ -96,7 +110,6 @@ const run = async function () {
       // fcl, txCode, args, authorizers, providedChecks
       const userAddress = await retrieveUserAddress()
       const dryRunResult = await flowSightDryRunTx(flowSightFCL, sourceCode, [], [userAddress], null)
-      console.log(dryRunResult)
 
       Array
         .from(window.document.getElementsByTagName("button"))

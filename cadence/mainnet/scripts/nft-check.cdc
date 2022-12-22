@@ -5,7 +5,7 @@ pub fun main(addr: Address): AnyStruct {
   let flowSightResult: {String: AnyStruct} = {}
 
   /*START CHECK*/
-  flowSightResult["name"] = "Check NFT Counts"
+  flowSightResult["name"] = "NFT Count changes to ".concat(flowSightAcct.address.toString())
   let counts: {String: [UInt64]} = {}
   flowSightResult["tokens"] = counts
   flowSightAcct.forEachStored(fun (path: StoragePath, type: Type): Bool {

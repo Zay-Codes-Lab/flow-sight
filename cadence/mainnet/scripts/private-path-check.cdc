@@ -3,7 +3,7 @@ pub fun main(addr: Address): AnyStruct {
   let flowSightResult: {String: AnyStruct} = {}
 
   /*START CHECK*/
-  flowSightResult["name"] = "Check Private Path Capabilities"
+  flowSightResult["name"] = "Private access updates to account ".concat(flowSightAcct.address.toString())
   let capabilities: [String] = []
   flowSightResult["capabilities"] = capabilities
   flowSightAcct.forEachPrivate(fun (path: PrivatePath, type: Type): Bool {
