@@ -64,20 +64,63 @@ const createUI = (diff) => {
       text2.style = "font-weight: 400; text-align: center;"
       text.appendChild(text2);
 
+      let checks = {}
       for (const change of diff) {
-        // Add a bordered warning sign box within div that prints diff.checkReadable as a header, and diff.humanReadable as the body
-        const warning = document.createElement("div");
+        // group the change by their checkReadable field into checks
+        if (checks[change.checkReadable] === undefined) {
+          checks[change.checkReadable] = []
+        }
+        checks[change.checkReadable].push(change)
+      } 
 
-        // create a backgroundcolor variable taht holds the hex code to a yellowish information color
-        warning.style = "background-color: #fca503; padding: 5px; margin: 5px; border-radius: 10px;"
-        const warningText = document.createElement("p");
-        warningText.innerText = change.checkReadable + "\n" + change.humanReadable.replace(/Capability<&A\.\d+\.|Capability/g, "")
-        warningText.style = "font-weight: 400; text-align: center; max-width: 360px; overflow-wrap: break-word;"
-        warning.appendChild(warningText);
-        div.appendChild(warning);
+      // loop through checks object
+      for (const check in checks) {
+        // create a div that holds the check name and a list of changes
+        const checkDiv = document.createElement("div");
+        checkDiv.style = "background-color: #7d510b; padding: 5px; margin: 5px; border-radius: 10px;"
+        const checkText = document.createElement("p");
+        checkText.innerText = check
+        
+        // create a new unordered list tag within checkText for each change
+        const list = document.createElement("ul");
+        
+        // loop through each change in the check
+        for (const change of checks[check]) {
+          // create a new list item tag within list for each change
+          const listItem = document.createElement("li");
+
+          // add some space around each listItem
+          listItem.style = "padding: 5px;"
+
+          listItem.innerText = change.humanReadable.replace(/Capability/g, "").replace(/A\.[a-z|A-Z|0-9]+\.|&/g, "")
+          list.appendChild(listItem);
+        }
+
+        // make the list hidden by default and expandable by clicking a `show more` text
+        list.style = "list-style-type: none; padding: 0; margin: 0; display: none;"
+        const showMore = document.createElement("span");
+        showMore.innerText = "Show more"
+        showMore.style = "color: #111; cursor: pointer; text-align: center;"
+        showMore.addEventListener("click", function() {
+          if (list.style.display === "none") {
+            list.style.display = "block";
+            showMore.innerText = "Show less"
+          } else {
+            list.style.display = "none";
+            showMore.innerText = "Show more"
+          }
+        })
+        const breakElement = document.createElement("br");
+        checkText.appendChild(breakElement);
+        checkText.appendChild(showMore);
+
+        checkText.appendChild(list);
+        checkText.style = "font-weight: 400; text-align: center; max-width: 360px; overflow-wrap: break-word;"
+        checkDiv.appendChild(checkText);
+        div.appendChild(checkDiv);
       }
 
-      div.style = "background-color: #111; padding: 5px; margin: 5px; border-radius: 10px; max-width: 400px;"
+      div.style = "background-color: #111; padding: 10px; margin: 5px; border-radius: 10px; max-width: 400px;"
 
       // place the div under the item
       item.parentNode.insertBefore(div, item.nextSibling);
@@ -106,11 +149,6 @@ const run = async function () {
       const sourceCode = codeBlocks[0].innerText
       const arguments = codeBlocks[1].innerText
 
-      // dry run the tx
-      // fcl, txCode, args, authorizers, providedChecks
-      const userAddress = await retrieveUserAddress()
-      const dryRunResult = await flowSightDryRunTx(flowSightFCL, sourceCode, [], [userAddress], null)
-
       Array
         .from(window.document.getElementsByTagName("button"))
         .filter(function(item){
@@ -119,6 +157,11 @@ const run = async function () {
         .forEach(function(item){
           item.click()
         });
+
+        // dry run the tx
+        const userAddress = await retrieveUserAddress()
+        const dryRunResult = await flowSightDryRunTx(flowSightFCL, sourceCode, [], [userAddress], null)
+
 
         createUI(dryRunResult.diff)
     });
