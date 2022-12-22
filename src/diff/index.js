@@ -1,21 +1,32 @@
 import HumanDiff from "human-object-diff";
+
+// A = added
+// R = removed
+// C = changed
 const humanDiff = new HumanDiff({
     dontHumanizePropertyNames: true,
     templates: {
-        N: "NEWVALUE was added to FIELD",
-        D: "OLDVALUE was removed from FIELD",
-        E: "OLDVALUE was changed to NEWVALUE for FIELD",
-        I: "NEWVALUE was inserted into FIELD",
-        R: "OLDVALUE was removed in FIELD",
-        AE: "OLDVALUE was changed to NEWVALUE in FIELD",
-        NS: "FIELD was added",
-        DS: "FIELD was removed",
-        ES: "FIELD was changed",
-        IS: "An item was inserted into FIELD",
-        RS: "An item was remove in FIELD",
-        AES: "An item was changed in FIELD",
+        N: "A|NEWVALUE was added to FIELD",
+        D: "R|OLDVALUE was removed from FIELD",
+        E: "C|OLDVALUE was changed to NEWVALUE for FIELD",
+        I: "A|NEWVALUE was inserted into FIELD",
+        R: "R|OLDVALUE was removed in FIELD",
+        AE: "C|OLDVALUE was changed to NEWVALUE in FIELD",
+        NS: "A|FIELD was added",
+        DS: "R|FIELD was removed",
+        ES: "C|FIELD was changed",
+        IS: "A|An item was inserted into FIELD",
+        RS: "R|An item was remove in FIELD",
+        AES: "C|An item was changed in FIELD",
     },
 });
+
+const sanitize = (humanReadable) => {
+    return humanReadable
+        .replace(/Capability/g, "")
+        .replace(/A\.[a-z|A-Z|0-9]+\.|&/g, "")
+        .replace(`was inserted into capabilities`, `capability was made public`)
+}
 
 export function generateDiff(currentState, proposedState) {
     let diffs = [];
@@ -46,15 +57,18 @@ export function generateDiff(currentState, proposedState) {
                             : proposedCheck[key]
                     );
                     if (generatedDiff && generatedDiff.length > 0) {
-                        generatedDiff.forEach((d) =>
+                        generatedDiff.forEach((d) =>{
+                            const operation = d.split('|')[0];
+                            const message = d.split('|')[1];
                             diffs.push({
                                 address: address,
                                 checkReadable: check.name,
                                 check: check.key,
                                 propertyChanged: key,
-                                humanReadable: d,
+                                operation: operation,
+                                humanReadable: sanitize(message),
                             })
-                        );
+                        });
                     }
                 } catch (e) {
                     console.error("Error while generating diff", e);

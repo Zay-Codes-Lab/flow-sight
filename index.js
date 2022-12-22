@@ -1,6 +1,7 @@
 import getChecks from "./src/checks/index.js";
 import * as t from "@onflow/types";
 import * as fclGlobal from "@onflow/fcl";
+import { resolveArguments } from "@onflow/flow-cadut";
 import { addCheckToState, buildStateJson } from "./src/schema/index.js";
 import convertTxToScript from "./src/parser/index.js";
 import { generateDiff } from "./src/diff/index.js";
@@ -128,6 +129,7 @@ if (typeof window !== "undefined") {
     window.flowSightGetCurrentStates = getCurrentStates;
     window.flowSightGetProposedState = getProposedState;
     window.flowSightDryRunTx = dryRunTx;
+    window.flowSightResolveArguments = resolveArguments;
 }
 
 export { getChecks, dryRunTx, getCurrentStates, getProposedState };

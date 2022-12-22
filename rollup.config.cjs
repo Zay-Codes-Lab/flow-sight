@@ -1,6 +1,7 @@
 const nodeResolve = require('@rollup/plugin-node-resolve').nodeResolve
 const commonjs = require('@rollup/plugin-commonjs')
 const terser = require('@rollup/plugin-terser')
+const json = require('@rollup/plugin-json');
 
 module.exports = [
   {
@@ -15,6 +16,7 @@ module.exports = [
     },
     external: [ 'fs' ],
     plugins: [
+      json(),
       nodeResolve({
         browser: true,
         preferBuiltins: false,

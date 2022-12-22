@@ -75,9 +75,41 @@ const updateUI = (diff) => {
   for (const check in checks) {
     // create a div that holds the check name and a list of changes
     const checkDiv = document.createElement("div");
-    checkDiv.style = "background-color: lightgoldenrodyellow;; padding: 12px; margin: 5px; border-radius: 10px;"
+    checkDiv.style = "background-color: #fff; padding: 12px; margin: 5px; border-radius: 10px;"
     const checkText = document.createElement("p");
     checkText.innerText = check
+
+    let addOperations = 0
+    let removeOperations = 0
+    let changeOperations = 0
+    for (const change of checks[check]) {
+      if (change.operation === "A") {
+        addOperations += 1
+      } else if (change.operation === "R") {
+        removeOperations += 1
+      } else if (change.operation === "C") {
+        changeOperations += 1
+      }
+    }
+
+    // add a new line after checktext
+    checkText.appendChild(document.createElement("br"));
+
+    // under checkText, add a new line that lists the add in green, remove in red, and change in yellow operations
+    const addCount = document.createElement("span");
+    addCount.innerText = ` +${addOperations}`
+    addCount.style = "color: green; font-weight: bold; text-align: center; padding: 2px;"
+    checkText.appendChild(addCount);
+
+    const removeCount = document.createElement("span");
+    removeCount.innerText = ` -${removeOperations}`
+    removeCount.style = "color: red; font-weight: bold; text-align: center; padding: 2px;"
+    checkText.appendChild(removeCount);
+
+    const changeCount = document.createElement("span");
+    changeCount.innerText = ` ~${changeOperations}`
+    changeCount.style = "color: orange; font-weight: bold; text-align: center; padding: 2px;"
+    checkText.appendChild(changeCount);
     
     // create a new unordered list tag within checkText for each change
     const list = document.createElement("ul");
@@ -90,7 +122,7 @@ const updateUI = (diff) => {
       // add some space around each listItem
       listItem.style = "padding: 5px;"
 
-      listItem.innerText = change.humanReadable.replace(/Capability/g, "").replace(/A\.[a-z|A-Z|0-9]+\.|&/g, "")
+      listItem.innerText = change.humanReadable
       list.appendChild(listItem);
     }
 
@@ -145,6 +177,10 @@ const run = async function (iteration) {
   const allCode = el[0].innerText
   const args = allCode.split('\n')[0]
 
+  // args looks like - Arguments: [1, test], make it so that it's just 1, test
+  const stripped = args.replace('- Arguments: [', '').replace(']', '')
+  const argsArray = stripped === '' ? [] : stripped.split(',').map((m) => { return m.trim() })
+
   // replace all code before a newline with empty string
   const code = allCode.replace(/.*\n/, '')
 
@@ -154,8 +190,10 @@ const run = async function (iteration) {
   // create the UI
   createUI()
 
+  const dryRunArgs = await window.flowSightResolveArguments(argsArray, code)
+
   // dry run the tx
-  const dryRunResult = await flowSightDryRunTx(flowSightFCL, code, [], [userAddress], null)
+  dryRunResult = await flowSightDryRunTx(flowSightFCL, code, dryRunArgs, [userAddress], null)
 
   updateUI(dryRunResult.diff)
 }

@@ -90,7 +90,7 @@
 
 "@onflow/flow-cadut@^0.2.0-alpha.9":
   version "0.2.0-alpha.9"
-  resolved "https://registry.npmjs.org/@onflow/flow-cadut/-/flow-cadut-0.2.0-alpha.9.tgz"
+  resolved "https://registry.yarnpkg.com/@onflow/flow-cadut/-/flow-cadut-0.2.0-alpha.9.tgz#3c4b379f2fde99acb8bbcf9694b6b22c3104f89a"
   integrity sha512-eFKt/0inM7hyWLMnCyNojQ/oaueij5HEP9xJNlnoa3q3+qJCCb2Wr8FQxebGtrGM4z3IaAb9ah7X13q0TeBRgg==
   dependencies:
     "@babel/runtime" "^7.18.6"
@@ -213,6 +213,13 @@
     glob "^8.0.3"
     is-reference "1.2.1"
     magic-string "^0.27.0"
+
+"@rollup/plugin-json@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@rollup/plugin-json/-/plugin-json-6.0.0.tgz#199fea6670fd4dfb1f4932250569b14719db234a"
+  integrity sha512-i/4C5Jrdr1XUarRhVu27EEwjt4GObltD7c+MkCIpO2QIbojw8MUs+CCTqOphQi3Qtg1FLmYt+l+6YeoIf51J7w==
+  dependencies:
+    "@rollup/pluginutils" "^5.0.1"
 
 "@rollup/plugin-node-resolve@^15.0.1":
   version "15.0.1"

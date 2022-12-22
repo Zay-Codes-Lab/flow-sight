@@ -1,3 +1,5 @@
+const mainBackgroundColor = "#333"
+
 const retrieveUserAddress = async () => {
   const accessTokenResult = await fetch("https://accounts.meetdapper.com/api/access-token", {
     "headers": {
@@ -66,7 +68,7 @@ const createUI = (el) => {
       // within the diffContainer div, add some colored loading text
       const loadingText = document.createElement("p");
       loadingText.innerText = "Loading Preview..."
-      loadingText.style = "color: #7d510b; text-align: center; margin-top: 12px;"
+      loadingText.style = `color: #ddd; text-align: center; margin-top: 12px;`
       diffContainer.appendChild(loadingText);
 
       // ad diffContainer after the div
@@ -94,9 +96,41 @@ const updateUI = (diff) => {
   for (const check in checks) {
     // create a div that holds the check name and a list of changes
     const checkDiv = document.createElement("div");
-    checkDiv.style = "background-color: #7d510b; padding: 12px; margin: 5px; border-radius: 10px;"
+    checkDiv.style = `background-color: ${mainBackgroundColor}; padding: 12px; margin: 5px; border-radius: 10px;`
     const checkText = document.createElement("p");
     checkText.innerText = check
+
+    let addOperations = 0
+    let removeOperations = 0
+    let changeOperations = 0
+    for (const change of checks[check]) {
+      if (change.operation === "A") {
+        addOperations += 1
+      } else if (change.operation === "R") {
+        removeOperations += 1
+      } else if (change.operation === "C") {
+        changeOperations += 1
+      }
+    }
+
+    // add a new line after checkText
+    checkText.appendChild(document.createElement("br"));
+
+    // under checkText, add a new line that lists the add in green, remove in red, and change in yellow operations
+    const addCount = document.createElement("span");
+    addCount.innerText = ` +${addOperations}`
+    addCount.style = "color: green; font-weight: bold; text-align: center; padding: 2px;"
+    checkText.appendChild(addCount);
+
+    const removeCount = document.createElement("span");
+    removeCount.innerText = ` -${removeOperations}`
+    removeCount.style = "color: red; font-weight: bold; text-align: center; padding: 2px;"
+    checkText.appendChild(removeCount);
+
+    const changeCount = document.createElement("span");
+    changeCount.innerText = ` ~${changeOperations}`
+    changeCount.style = "color: orange; font-weight: bold; text-align: center; padding: 2px;"
+    checkText.appendChild(changeCount);
     
     // create a new unordered list tag within checkText for each change
     const list = document.createElement("ul");
@@ -109,7 +143,7 @@ const updateUI = (diff) => {
       // add some space around each listItem
       listItem.style = "padding: 5px;"
 
-      listItem.innerText = change.humanReadable.replace(/Capability/g, "").replace(/A\.[a-z|A-Z|0-9]+\.|&/g, "")
+      listItem.innerText = change.humanReadable
       list.appendChild(listItem);
     }
 
@@ -117,7 +151,7 @@ const updateUI = (diff) => {
     list.style = "list-style-type: none; padding: 0; margin: 0; display: none;"
     const showMore = document.createElement("span");
     showMore.innerText = "Show more"
-    showMore.style = "color: #111; cursor: pointer; text-align: center; text-decoration: underline;"
+    showMore.style = "color: #ccc; cursor: pointer; text-align: center; text-decoration: underline;"
     showMore.addEventListener("click", function() {
       if (list.style.display === "none") {
         list.style.display = "block";
@@ -175,6 +209,11 @@ const run = async function (iteration) {
       const sourceCode = codeBlocks[0].innerText
       const arguments = codeBlocks[1].innerText
 
+      // Retrieve all text between [ ] in arguments
+      const regex = /\[(.*?)\]/g;
+      const match = arguments.match(regex)[0].slice(1, -1)
+      const args = match === '' ? [] : match.split(',').map((m) => { return m.trim() })
+
       Array
         .from(window.document.getElementsByTagName("button"))
         .filter(function(item){
@@ -193,7 +232,9 @@ const run = async function (iteration) {
 
       // dry run the tx
       const userAddress = await retrieveUserAddress()
-      const dryRunResult = await flowSightDryRunTx(flowSightFCL, sourceCode, [], [userAddress], null)
+
+      const dryRunArgs = await window.flowSightResolveArguments(args, sourceCode)
+      const dryRunResult = await flowSightDryRunTx(flowSightFCL, sourceCode, dryRunArgs, [userAddress], null)
 
       updateUI(dryRunResult.diff)
     });
