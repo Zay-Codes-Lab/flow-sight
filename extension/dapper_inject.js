@@ -42,12 +42,8 @@ const retrieveUserAddress = async () => {
   return window.flowSightFCL.withPrefix(getAccountResponse.data.getAccount.flowAccountID)
 }
 
-const createUI = (diff) => {
-  Array
-    .from(window.document.getElementsByTagName("div"))
-    .filter(function(item){
-      return item.innerText === "See source code details"
-    })
+const createUI = (el) => {
+  el
     .forEach(async function(item){
       // insert dom element under item
       const div = document.createElement("div");
@@ -64,82 +60,112 @@ const createUI = (diff) => {
       text2.style = "font-weight: 400; text-align: center;"
       text.appendChild(text2);
 
-      let checks = {}
-      for (const change of diff) {
-        // group the change by their checkReadable field into checks
-        if (checks[change.checkReadable] === undefined) {
-          checks[change.checkReadable] = []
-        }
-        checks[change.checkReadable].push(change)
-      } 
+      const diffContainer = document.createElement("div");
+      diffContainer.id = "diffContainer"
 
-      // loop through checks object
-      for (const check in checks) {
-        // create a div that holds the check name and a list of changes
-        const checkDiv = document.createElement("div");
-        checkDiv.style = "background-color: #7d510b; padding: 5px; margin: 5px; border-radius: 10px;"
-        const checkText = document.createElement("p");
-        checkText.innerText = check
-        
-        // create a new unordered list tag within checkText for each change
-        const list = document.createElement("ul");
-        
-        // loop through each change in the check
-        for (const change of checks[check]) {
-          // create a new list item tag within list for each change
-          const listItem = document.createElement("li");
+      // within the diffContainer div, add some colored loading text
+      const loadingText = document.createElement("p");
+      loadingText.innerText = "Loading Preview..."
+      loadingText.style = "color: #7d510b; text-align: center;"
+      diffContainer.appendChild(loadingText);
 
-          // add some space around each listItem
-          listItem.style = "padding: 5px;"
-
-          listItem.innerText = change.humanReadable.replace(/Capability/g, "").replace(/A\.[a-z|A-Z|0-9]+\.|&/g, "")
-          list.appendChild(listItem);
-        }
-
-        // make the list hidden by default and expandable by clicking a `show more` text
-        list.style = "list-style-type: none; padding: 0; margin: 0; display: none;"
-        const showMore = document.createElement("span");
-        showMore.innerText = "Show more"
-        showMore.style = "color: #111; cursor: pointer; text-align: center;"
-        showMore.addEventListener("click", function() {
-          if (list.style.display === "none") {
-            list.style.display = "block";
-            showMore.innerText = "Show less"
-          } else {
-            list.style.display = "none";
-            showMore.innerText = "Show more"
-          }
-        })
-        const breakElement = document.createElement("br");
-        checkText.appendChild(breakElement);
-        checkText.appendChild(showMore);
-
-        checkText.appendChild(list);
-        checkText.style = "font-weight: 400; text-align: center; max-width: 360px; overflow-wrap: break-word;"
-        checkDiv.appendChild(checkText);
-        div.appendChild(checkDiv);
-      }
+      // ad diffContainer after the div
+      div.appendChild(diffContainer);
 
       div.style = "background-color: #111; padding: 10px; margin: 5px; border-radius: 10px; max-width: 400px;"
 
       // place the div under the item
       item.parentNode.insertBefore(div, item.nextSibling);
-      
-      
     });
 }
 
-const run = async function () {
+const updateUI = (diff) => {
+
+  let checks = {}
+  for (const change of diff) {
+    // group the change by their checkReadable field into checks
+    if (checks[change.checkReadable] === undefined) {
+      checks[change.checkReadable] = []
+    }
+    checks[change.checkReadable].push(change)
+  } 
+
+  // loop through checks object
+  for (const check in checks) {
+    // create a div that holds the check name and a list of changes
+    const checkDiv = document.createElement("div");
+    checkDiv.style = "background-color: #7d510b; padding: 5px; margin: 5px; border-radius: 10px;"
+    const checkText = document.createElement("p");
+    checkText.innerText = check
+    
+    // create a new unordered list tag within checkText for each change
+    const list = document.createElement("ul");
+    
+    // loop through each change in the check
+    for (const change of checks[check]) {
+      // create a new list item tag within list for each change
+      const listItem = document.createElement("li");
+
+      // add some space around each listItem
+      listItem.style = "padding: 5px;"
+
+      listItem.innerText = change.humanReadable.replace(/Capability/g, "").replace(/A\.[a-z|A-Z|0-9]+\.|&/g, "")
+      list.appendChild(listItem);
+    }
+
+    // make the list hidden by default and expandable by clicking a `show more` text
+    list.style = "list-style-type: none; padding: 0; margin: 0; display: none;"
+    const showMore = document.createElement("span");
+    showMore.innerText = "Show more"
+    showMore.style = "color: #111; cursor: pointer; text-align: center;"
+    showMore.addEventListener("click", function() {
+      if (list.style.display === "none") {
+        list.style.display = "block";
+        showMore.innerText = "Show less"
+      } else {
+        list.style.display = "none";
+        showMore.innerText = "Show more"
+      }
+    })
+    const breakElement = document.createElement("br");
+    checkText.appendChild(breakElement);
+    checkText.appendChild(showMore);
+
+    checkText.appendChild(list);
+    checkText.style = "font-weight: 400; text-align: center; max-width: 360px; overflow-wrap: break-word;"
+    checkDiv.appendChild(checkText);
+
+    const diffContainer = document.getElementById("diffContainer");
+
+    // empty out what's in diffContainer
+    diffContainer.innerHTML = "";
+    diffContainer.appendChild(checkDiv);
+  }
+}
+
+const run = async function (iteration) {
+
+
   const { flowSightFCL, flowSightTypes, flowSightDryRunTx } = window;
   flowSightFCL.config()
     .put("accessNode.api", "https://rest-mainnet.onflow.org")
     .put("flow.network", "mainnet")
 
-  Array
+  let el = Array
     .from(window.document.getElementsByTagName("div"))
     .filter(function(item){
       return item.innerText === "See source code details"
     })
+
+  // re-run if iteration is less than 10
+  if (iteration < 20 && el.length === 0) {
+    setTimeout(async function() {
+      await
+      run(iteration + 1)
+    }, 100)
+  }
+
+  el
     .forEach(async function(item){
       // open up the source code pane
       item.click()
@@ -158,15 +184,22 @@ const run = async function () {
           item.click()
         });
 
-        // dry run the tx
-        const userAddress = await retrieveUserAddress()
-        const dryRunResult = await flowSightDryRunTx(flowSightFCL, sourceCode, [], [userAddress], null)
+      el = Array
+        .from(window.document.getElementsByTagName("div"))
+        .filter(function(item){
+          return item.innerText === "See source code details"
+        })
+      createUI(el)
+
+      // dry run the tx
+      const userAddress = await retrieveUserAddress()
+      const dryRunResult = await flowSightDryRunTx(flowSightFCL, sourceCode, [], [userAddress], null)
 
 
-        createUI(dryRunResult.diff)
+      updateUI(dryRunResult.diff)
     });
 }
 
 setTimeout(() => {
-  run()
-}, 3000)
+  run(0)
+}, 0)
