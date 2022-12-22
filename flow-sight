@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec yarn --silent run flow-sight "$@"
