@@ -138,8 +138,8 @@ export default function convertTxToScript(txCode, authorizers, checkingAddress, 
         scriptCode = scriptCode.replace(/}\s*execute\s*{/, "");
     }
 
-    // remove the 2nd to last closing brace from scriptCode using a regex
-    scriptCode = scriptCode.replace(/}\s*}/, "}").trim();
+    // remove the last brace from scriptCode
+    scriptCode = scriptCode.replace(/}\s*$/, "");
 
     // before the last curly brace, add `return 1` to the scriptCode
     scriptCode = scriptCode.replace(
