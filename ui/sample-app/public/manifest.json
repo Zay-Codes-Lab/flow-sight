@@ -1,0 +1,25 @@
+{
+  "short_name": "Flow Holidays",
+  "name": "Flow Holidays Gift",
+  "icons": [
+    {
+      "src": "flow_colored.png",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "flow_colored.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "flow_colored.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
