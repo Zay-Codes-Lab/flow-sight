@@ -2,13 +2,14 @@
 
 // NOTE: `addr` must be provided as the first argument.
 pub fun main(addr: Address): AnyStruct {
-  let acct = getAuthAccount(addr)
+  // NOTE: These variables are required for the Flow Sight integration.  Do not remove or edit them.
+  let flowSightAcct = getAuthAccount(addr)
   let flowSightResult: {String: AnyStruct} = {}
 
   flowSightResult["name"] = "..." // Name of your check
 
-  // Your code here...
+  /*START CHECK*/
 
-  // Must return the flowSightResult at the end.
+  /*END CHECK*/
   return flowSightResult
 }

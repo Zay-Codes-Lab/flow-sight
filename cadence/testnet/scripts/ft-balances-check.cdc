@@ -5,7 +5,7 @@ pub fun main(addr: Address): AnyStruct {
   let flowSightResult: {String: AnyStruct} = {}
 
   /*START CHECK*/
-  flowSightResult["name"] = "Check FT Balances"
+  flowSightResult["name"] = "FT Balance changes to ".concat(flowSightAcct.address.toString())
   let balances : {String: UFix64} = {}
   flowSightResult["balances"] = balances
   flowSightAcct.forEachStored(fun (path: StoragePath, type: Type): Bool {
