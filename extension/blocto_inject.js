@@ -31,6 +31,13 @@ const createUI = () => {
   // insert dom element under item
   const div = document.createElement("div");
 
+  // create an image element pointing to the flow sight logo https://raw.githubusercontent.com/Zay-Codes-Lab/flow-sight/main/images/flow-sight.png
+  const img = document.createElement("img");
+  img.src = "https://raw.githubusercontent.com/Zay-Codes-Lab/flow-sight/main/images/flow-sight.png";
+  // give the image style to be centered on the page and have a width of 100px
+  img.style = "display: block; margin-left: auto; margin-right: auto; width: 50px;"
+  div.appendChild(img);
+
   // create a text element that's centered within div and says "Flow Sight" in bold
   const text = document.createElement("p");
   text.innerText = "Flow Sight\n";
@@ -117,6 +124,10 @@ const updateUI = (diff, userAddress) => {
     
     // create a new unordered list tag within checkText for each change
     const list = document.createElement("ul");
+
+
+    const diffContainerOld = document.getElementById("diffContainer");
+    diffContainerOld.innerHTML = ""
     
     // loop through each change in the check
     for (const change of checks[check]) {
@@ -154,8 +165,6 @@ const updateUI = (diff, userAddress) => {
 
     const diffContainer = document.getElementById("diffContainer");
 
-    // empty out what's in diffContainer
-    diffContainer.innerHTML = "";
     diffContainer.appendChild(checkDiv);
   }
 }

@@ -50,6 +50,13 @@ const createUI = (el) => {
       // insert dom element under item
       const div = document.createElement("div");
 
+      // create an image element pointing to the flow sight logo https://raw.githubusercontent.com/Zay-Codes-Lab/flow-sight/main/images/flow-sight.png
+      const img = document.createElement("img");
+      img.src = "https://raw.githubusercontent.com/Zay-Codes-Lab/flow-sight/main/images/flow-sight.png";
+      // give the image style to be centered on the page and have a width of 100px
+      img.style = "display: block; margin-left: auto; margin-right: auto; width: 50px;"
+      div.appendChild(img);
+
       // create a text element that's centered within div and says "Flow Sight" in bold
       const text = document.createElement("p");
       text.innerText = "Flow Sight\n";
@@ -92,8 +99,12 @@ const updateUI = (diff, userAddress) => {
     checks[change.checkReadable].push(change)
   } 
 
+  const diffContainerOld = document.getElementById("diffContainer");
+  diffContainerOld.innerHTML = ""
+
   // loop through checks object
   for (const check in checks) {
+
     // create a div that holds the check name and a list of changes
     const checkDiv = document.createElement("div");
     checkDiv.style = `background-color: ${mainBackgroundColor}; padding: 12px; margin: 5px; border-radius: 10px;`
@@ -175,8 +186,6 @@ const updateUI = (diff, userAddress) => {
 
     const diffContainer = document.getElementById("diffContainer");
 
-    // empty out what's in diffContainer
-    diffContainer.innerHTML = "";
     diffContainer.appendChild(checkDiv);
   }
 }
@@ -216,7 +225,8 @@ const run = async function (iteration) {
       // Retrieve all text between [ ] in arguments
       const regex = /\[(.*?)\]/g;
       const match = arguments.match(regex)[0].slice(1, -1)
-      const args = match === '' ? [] : match.split(',').map((m) => { return m.trim() })
+
+      let args = match === '' ? [] : match.split(',').map((m) => { return m.replaceAll('"', '').trim() })
 
       Array
         .from(window.document.getElementsByTagName("button"))

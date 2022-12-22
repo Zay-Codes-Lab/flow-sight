@@ -18,7 +18,7 @@ export default function convertTxToScript(txCode, authorizers, checkingAddress, 
 
     let ducAdjustments = [];
     // check if there is the string `import DapperUtilityCoin` at the top of txCode
-    if (txCode.includes("import DapperUtilityCoin")) {
+    /*if (txCode.includes("import DapperUtilityCoin")) {
         ducAdjustments = impactedAddresses.map((address, i) => {
             return `
                 let curAccount${i} = getAuthAccount(${address})
@@ -31,7 +31,7 @@ export default function convertTxToScript(txCode, authorizers, checkingAddress, 
                 )
             `
         })
-    }
+    }*/
 
     const joinedDUCAdjustments = ducAdjustments.join('\n')
 
@@ -90,7 +90,7 @@ export default function convertTxToScript(txCode, authorizers, checkingAddress, 
         );
 
         // search throughout the rest of scriptCode for the lineWithoutSemicolonAndLet and replace with lineWithoutSemicolonAndLet
-        scriptCode = scriptCode.replace(
+        scriptCode = scriptCode.replaceAll(
             `self.${lineWithoutSemicolonAndLet}`,
             lineWithoutSemicolonAndLet
         );
