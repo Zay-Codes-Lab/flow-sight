@@ -81,7 +81,7 @@ const createUI = (el) => {
     });
 }
 
-const updateUI = (diff) => {
+const updateUI = (diff, userAddress) => {
 
   let checks = {}
   for (const change of diff) {
@@ -98,7 +98,11 @@ const updateUI = (diff) => {
     const checkDiv = document.createElement("div");
     checkDiv.style = `background-color: ${mainBackgroundColor}; padding: 12px; margin: 5px; border-radius: 10px;`
     const checkText = document.createElement("p");
-    checkText.innerText = check
+    if (userAddress && check.indexOf(userAddress) !== -1) {
+      checkText.innerText = check.replace(userAddress, `${userAddress} (your account)`)
+    } else {
+      checkText.innerText = check
+    }
 
     let addOperations = 0
     let removeOperations = 0
@@ -235,8 +239,22 @@ const run = async function (iteration) {
 
       const dryRunArgs = await window.flowSightResolveArguments(args, sourceCode)
       const dryRunResult = await flowSightDryRunTx(flowSightFCL, sourceCode, dryRunArgs, [userAddress], null)
-
-      updateUI(dryRunResult.diff)
+      
+      if (dryRunResult.error) {
+        updateUI([{
+          checkReadable: "This transaction will fail to run",
+          humanReadable: `We ran into the following error when simulating your transaction:\n${dryRunResult.error}`,
+          operation: 'e'
+        }], null)
+      } else if (dryRunResult.diff.length === 0) {
+        updateUI([{
+          checkReadable: "No changes to your account",
+          humanReadable: "We did not find any changes that this transaction will result to in your account",
+          operation: 'n'
+        }], null)
+      } else {
+        updateUI(dryRunResult.diff, window.flowSightFCL.sansPrefix(userAddress))
+      }
     });
 }
 
