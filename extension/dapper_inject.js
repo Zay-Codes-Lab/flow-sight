@@ -78,8 +78,6 @@ const run = async function () {
     .put("accessNode.api", "https://rest-mainnet.onflow.org")
     .put("flow.network", "mainnet")
 
-  const userAddress = await retrieveUserAddress()
-
   Array
     .from(window.document.getElementsByTagName("div"))
     .filter(function(item){
@@ -96,6 +94,7 @@ const run = async function () {
 
       // dry run the tx
       // fcl, txCode, args, authorizers, providedChecks
+      const userAddress = await retrieveUserAddress()
       const dryRunResult = await flowSightDryRunTx(flowSightFCL, sourceCode, [], [userAddress], null)
       console.log(dryRunResult)
 
