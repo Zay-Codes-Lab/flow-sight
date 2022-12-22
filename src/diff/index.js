@@ -37,8 +37,13 @@ export function generateDiff(currentState, proposedState) {
                 }
                 try {
                     const generatedDiff = humanDiff.diff(
-                        check[key],
-                        proposedCheck[key]
+                        // HumanDiff doesn't like direct arrays, so we convert them to objects
+                        Array.isArray(check[key])
+                            ? { [key]: check[key] }
+                            : check[key],
+                        Array.isArray(proposedCheck[key])
+                            ? { [key]: proposedCheck[key] }
+                            : proposedCheck[key]
                     );
                     if (generatedDiff && generatedDiff.length > 0) {
                         generatedDiff.forEach((d) =>

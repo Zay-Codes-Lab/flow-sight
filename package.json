@@ -6,8 +6,7 @@
     "main": "index.js",
     "scripts": {
         "build": "mkdir -p src/generated && node build.js",
-        "bundle": "patch-package && npm run build && rollup -c rollup.config.cjs",
-        "postinstall": "patch-package",
+        "bundle": "npm run build && rollup -c rollup.config.cjs",
         "flow-sight": "npm run build && node bin/flow-sight.js"
     },
     "author": "",
@@ -24,7 +23,6 @@
         "@rollup/plugin-node-resolve": "^15.0.1",
         "@rollup/plugin-terser": "^0.2.0",
         "commander": "^9.4.1",
-        "patch-package": "^6.5.0",
         "postinstall-postinstall": "^2.1.0",
         "rollup": "^3.7.5"
     }
