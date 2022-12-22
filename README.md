@@ -13,7 +13,7 @@ See example/checker.cdc for the template of your check.
 | Check Public Path Capabilities  | X       | X       |
 | Check Private Path Capabilities | X       | X       |
 
-### Example usage
+## Example usage
 
 ```
 yarn run flow-sight dry-run ./example/init-ufc.cdc '[]' 0xf9f7a4ebaf29be6c -n mainnet
