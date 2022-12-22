@@ -7,5 +7,16 @@ export function buildStateJson(authorizers) {
 }
 
 export function addCheckToState(checks, check, checkResult) {
-    checks.push({ ...checkResult, key: check.name });
+    if (checkResult.error) {
+        checks.push({
+            key: check.name,
+            error: checkResult.error,
+        });
+    } else {
+        checks.push({
+            ...checkResult.result,
+            key: check.name,
+            error: undefined,
+        });
+    }
 }

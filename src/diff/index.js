@@ -43,7 +43,7 @@ export function generateDiff(currentState, proposedState) {
             );
 
             for (const key of Object.keys(check)) {
-                if (key === "key" || key === "name") {
+                if (key === "key" || key === "name" || key === "error") {
                     continue;
                 }
                 try {
