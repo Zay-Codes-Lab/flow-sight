@@ -1,3 +1,46 @@
+const retrieveUserAddress = async () => {
+  const accessTokenResult = await fetch("https://accounts.meetdapper.com/api/access-token", {
+    "headers": {
+      "accept": "*/*",
+      "accept-language": "en-US,en;q=0.9",
+      "sec-ch-ua-mobile": "?0",
+      "sec-fetch-dest": "empty",
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "same-origin"
+    },
+    "referrerPolicy": "strict-origin-when-cross-origin",
+    "body": null,
+    "method": "GET",
+    "mode": "cors",
+    "credentials": "include"
+  }).then((response) => {
+    return response.json()
+  });
+
+  const accessToken = accessTokenResult.accessToken
+
+  const getAccountResponse = await fetch("https://graphql-api.meetdapper.com/graphql?GetAccount", {
+    "headers": {
+      "accept": "*/*",
+      "accept-language": "en-US,en;q=0.9",
+      "authorization": accessToken,
+      "content-type": "application/json",
+      "sec-fetch-dest": "empty",
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "same-site"
+    },
+    "referrer": "https://accounts.meetdapper.com/",
+    "referrerPolicy": "strict-origin-when-cross-origin",
+    "body": "{\"operationName\":\"GetAccount\",\"variables\":{},\"query\":\"query GetAccount {\\n  getAccount {\\n    ...AccountBase\\n    lastPasswordReset\\n    identities {\\n      connection\\n      isSocial\\n      provider\\n      profileData {\\n        email\\n        emailVerified\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\\nfragment AccountBase on Account {\\n  avatarID\\n  avatarURL\\n  nftAvatarID\\n  email\\n  emailVerified\\n  id\\n  username\\n  flowAccountID\\n  __typename\\n}\"}",
+    "method": "POST",
+    "mode": "cors",
+    "credentials": "include"
+  }).then((response) => {
+    return response.json()
+  });
+
+  return window.flowSightFCL.withPrefix(getAccountResponse.data.getAccount.flowAccountID)
+}
 
 const createUI = () => {
   Array
@@ -34,8 +77,9 @@ const run = async function () {
   flowSightFCL.config()
     .put("accessNode.api", "https://rest-mainnet.onflow.org")
     .put("flow.network", "mainnet")
-  const userData = JSON.parse(window.localStorage.getItem("ajs_user_traits"))
-  const userAddress = userData["https://accounts.meetdapper.com/flow_account_id"]
+
+  const userAddress = await retrieveUserAddress()
+
   Array
     .from(window.document.getElementsByTagName("div"))
     .filter(function(item){
