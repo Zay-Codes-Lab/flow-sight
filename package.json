@@ -8,7 +8,7 @@
         "build": "mkdir -p src/generated && node build.js",
         "postinstall": "npm run build",
         "bundle": "npm run build && rollup -c rollup.config.cjs",
-        "flow-sight": "npm run build && node bin/flow-sight.js",
+        "flow-sight": "npm run --silent build && node bin/flow-sight.js",
         "test": "./tests/integ/dry-run.sh"
     },
     "author": "",
