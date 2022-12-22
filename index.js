@@ -34,13 +34,7 @@ async function getCurrentStates(fcl, addresses, providedChecks) {
     return currentState;
 }
 
-async function getProposedState(
-    fcl,
-    address,
-    providedChecks,
-    txScript,
-    args
-) {
+async function getProposedState(fcl, address, providedChecks, txScript, args) {
     if (!providedChecks) {
         providedChecks = await getChecks(
             await fcl.config().get("flow.network", DEFAULT_NETWORK)
@@ -58,15 +52,13 @@ async function getProposedState(
             let curScript = txScript.replace("/*INSERT_CODE_HERE*/", checkCode);
 
             const importRegex = /^import\s+[^\n]+/gm;
-            const importsInCheck = check.cadence.match(importRegex);
-            const importsInTransaction = curScript.match(importRegex);
-            if (importsInCheck) {
-                const uniqueImportsFromCheck = importsInCheck.filter(
-                    (element) => !importsInTransaction.includes(element)
-                );
-                for (const uniqueImport of uniqueImportsFromCheck) {
-                    curScript = `${uniqueImport}\n` + curScript;
-                }
+            const importsInCheck = check.cadence.match(importRegex) || [];
+            const importsInTransaction = curScript.match(importRegex) || [];
+            const uniqueImportsFromCheck = importsInCheck.filter(
+                (element) => !importsInTransaction.includes(element)
+            );
+            for (const uniqueImport of uniqueImportsFromCheck) {
+                curScript = `${uniqueImport}\n` + curScript;
             }
 
             const result = await fcl
@@ -86,9 +78,14 @@ async function dryRunTx(fcl, txCode, args, authorizers, providedChecks) {
         );
     }
 
-
-
-    const addresses = [...new Set([...args.filter(arg => arg.xform.label === 'Address').map(arg => fcl.withPrefix(arg.value)), ...authorizers])]
+    const addresses = [
+        ...new Set([
+            ...args
+                .filter((arg) => arg.xform.label === "Address")
+                .map((arg) => fcl.withPrefix(arg.value)),
+            ...authorizers,
+        ]),
+    ];
 
     const currentStates = await getCurrentStates(
         fcl,
@@ -96,10 +93,14 @@ async function dryRunTx(fcl, txCode, args, authorizers, providedChecks) {
         providedChecks
     );
 
-    const proposedStates = {accounts : []};
+    const proposedStates = { accounts: [] };
     for (const address of addresses) {
-
-        const scriptCode = convertTxToScript(txCode, authorizers, address, addresses);
+        const scriptCode = convertTxToScript(
+            txCode,
+            authorizers,
+            address,
+            addresses
+        );
 
         const proposedState = await getProposedState(
             fcl,
