@@ -1,13 +1,15 @@
 {
-    "name": "flow-preview",
+    "name": "flow-sight",
     "type": "module",
     "version": "1.0.0",
-    "description": "",
+    "description": "Simulation of asset movement and account changes in custom flow transactions with user-friendly UI for Dapper Wallet",
     "main": "index.js",
     "scripts": {
         "build": "mkdir -p src/generated && node build.js",
+        "postinstall": "npm run build",
         "bundle": "npm run build && rollup -c rollup.config.cjs",
-        "flow-sight": "npm run build && node bin/flow-sight.js"
+        "flow-sight": "npm run build && node bin/flow-sight.js",
+        "test": "./tests/integ/dry-run.sh"
     },
     "author": "",
     "license": "ISC",
