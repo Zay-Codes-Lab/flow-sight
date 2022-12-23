@@ -61,6 +61,19 @@ Options:
 yarn run flow-sight current-states 0xf9f7a4ebaf29be6c -n mainnet
 ```
 
+## Extension
+
+The extension provided in this package lets you preview transactions from Blocto and Dapper wallet right away. Install the extension to get started in trying it out.
+
+### How-to install
+
+1. Go to the Chrome extensions page by entering `chrome://extensions` in the address bar and pressing Enter.
+2. Enable Developer Mode by clicking the toggle switch in the top right corner of the page.
+3. Click the `Load unpacked` button in the top left corner of the page.
+4. In the file browser that appears, navigate to the `/extension` directory in your GitHub repository that contains the extension files.
+5. Select the `/extension` directory and click the `Select` button.
+
+
 ## Checks
 
 ### Supported Checks
